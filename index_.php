@@ -1,14 +1,29 @@
 <?php
 session_start();
 ini_set("session.cookie_lifetime","3600");
-error_reporting(E_ALL);
-ini_set('display_errors', 'On');
 
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Origin:*");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
-
+/**
+ * Verificação de acesso
+ */
+if(!isset($_SESSION["usuario"])){
+    try {
+        if(isset($_GET["usuario"]) && isset($_GET["senha"])){
+            if($_GET["usuario"] == "utilizador" && $_GET["senha"] = "pwdws$123xy"){
+                $_SESSION["usuario"]    = "utilizador";
+                $_SESSION["acesso"]     = true;
+            }else throw new Exception("Erro na autenticação, favor verificar usuário e senha!");
+        }else{
+            throw new Exception("Você não tem permissão de acesso de acesso!");
+        }
+    } catch (Exception $e) {
+        // this session has worn out its welcome; kill it and start a brand new one
+        session_unset();
+        session_destroy();
+        $arrMensagem = array("result" => array("mensagem"=>htmlentities($e->getMessage())));
+        echo json_encode($arrMensagem);
+        die;
+    }
+}
 
 ini_set('memory_limit', '1024M');
 date_default_timezone_set('America/Sao_Paulo');
