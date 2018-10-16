@@ -74,9 +74,16 @@ class Dao {
     protected function executar() {
         return $this->stmtPDO->execute();
     }
+    
+    protected function rowCount() {
+        return $this->stmtPDO->rowCount();
+    }
 
-    protected function buscarDoResultadoAssoc() {
-        return $this->stmtPDO->fetchAll(PDO::FETCH_ASSOC);
+    protected function buscarDoResultadoAssoc($bolUnico = false) {
+        if($bolUnico)
+            return $this->stmtPDO->fetch(PDO::FETCH_ASSOC);
+        else
+            return $this->stmtPDO->fetchAll(PDO::FETCH_ASSOC);
     }
 
     protected function iniciarTransacao() {
