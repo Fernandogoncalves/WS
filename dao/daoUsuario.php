@@ -20,6 +20,7 @@ class daoUsuario extends Dao {
 
     /**
      * Método de login do usuário
+     * 
      * @param array $arrDados
      * @return array
      */
@@ -58,6 +59,7 @@ class daoUsuario extends Dao {
     }
     
     /**
+     * Verifica se existe o e-mail se sim altera a senha e envia para o email
      * 
      * @param array $arrDados
      * @return unknown|mixed
@@ -94,6 +96,50 @@ class daoUsuario extends Dao {
             }else{
                 throw new Exception("Usuário não encontrado");
             }
+        } catch (Exception $ex) { }
+    }
+    
+    /**
+     * Verifica se o cpf já está cadastrado
+     * 
+     * @param array $arrDados
+     * @return boolean
+     */
+    function existeCPF(array $arrDados){
+        try {
+            $strCPF = (string) $arrDados["strCPF"];
+            $this->sql ="SELECT
+                            u.id
+                            FROM usuario u
+                         WHERE
+                            u.login = :login ";
+            $this->prepare();
+            $this->bind("login", $strCPF);
+            $this->executar();
+            $arrRetorno = $this->buscarDoResultadoAssoc(true);
+            return (!empty($arrRetorno));
+        } catch (Exception $ex) { }
+    }
+    
+    /**
+     * Verifica se o email já está cadastrado
+     *
+     * @param array $arrDados
+     * @return boolean
+     */
+    function existeEmail(array $arrDados){
+        try {
+            $strEmail = $arrDados["strEmail"];
+            $this->sql ="SELECT
+                            u.id
+                         FROM usuario u
+                         WHERE
+                            u.email = :email";
+            $this->prepare();
+            $this->bind("email", $strEmail);
+            $this->executar();
+            $arrRetorno = $this->buscarDoResultadoAssoc(true);
+            return (!empty($arrRetorno));
         } catch (Exception $ex) { }
     }
 }

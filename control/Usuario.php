@@ -46,15 +46,86 @@ class Usuario {
         // Criando os parametros para login
         $arrDados = array();
         $arrDados["strEmail"] = $_POST["strEmail"];
-        // Realizando o login e senha
+        // Alterando a senha do usuário caso encontre
         $arrUsuario =  $this->objDaoUsuario->enviarSenha($arrDados);
-       
         // Caso a senha tenha sido alterada
         if(!empty($arrUsuario)){
             $this->enviarEmailSenha($arrUsuario);
             $bolRetorno = true;
         }
         return $bolRetorno;
+    }
+    
+    public function post_existeEmail(){
+        $bolRetorno = false;
+        // Criando o dao
+        $this->objDaoUsuario = new daoUsuario();
+        // Validando os dados postados
+        if(empty($_POST["strEmail"])) throw new Exception("E-mail Não Informado!");
+        // Criando os parametros para login
+        $arrDados = array();
+        $arrDados["strEmail"] = $_POST["strEmail"];
+        // Realizando o login e senha
+        return $this->objDaoUsuario->existeEmail($arrDados);
+    }
+    
+    /**
+     * 
+     * @throws Exception
+     * @return boolean
+     */
+    public function post_existeCpf(){
+        // Criando o dao
+        $this->objDaoUsuario = new daoUsuario();
+        // Validando os dados postados
+        if(empty($_POST["strCPF"])) throw new Exception("CPF Não Informado!");
+        // Criando os parametros para login
+        $arrDados = array();
+        $arrDados["strCPF"] = $_POST["strCPF"];
+        // Realizando o login e senha
+        return $this->objDaoUsuario->existeCPF($arrDados);
+    }
+    
+    /**
+     *
+     * @throws Exception
+     * @return boolean
+     */
+    public function post_validarCadastro(){
+        // Criando o dao
+        $this->objDaoUsuario = new daoUsuario();
+        // Validando os dados postados
+        if(empty($_POST["strCPF"])) throw new Exception("CPF Não Informado!");
+        if(empty($_POST["strEmail"])) throw new Exception("E-mail Não Informado!");
+        // Criando os parametros para validar 
+        $arrDados = array();
+        $arrDados["strCPF"]     = preg_replace("/[^0-9]/", "", $_POST["strCPF"]);
+        $arrDados["strEmail"]   = $_POST["strEmail"];
+        // Realizando o login e senha
+        if($this->objDaoUsuario->existeCPF($arrDados))      throw new Exception("CPF já cadastrado!");
+        if($this->objDaoUsuario->existeEmail($arrDados))    throw new Exception("E-mail já cadastrado!");
+        return true;
+    }
+    
+    public function post_cadastrarPaciente(){
+        $bolRetorno = false;
+        // Criando o dao
+        $this->objDaoUsuario = new daoUsuario();
+        echo '<pre>';
+        print_r($_POST);
+        echo '</pre>';
+        die();
+//         // Validando os dados postados
+//         if(empty($_POST["strCPF"])) throw new Exception("CPF Não Informado!");
+//         if(empty($_POST["strEmail"])) throw new Exception("E-mail Não Informado!");
+//         // Criando os parametros para validar
+//         $arrDados = array();
+//         $arrDados["strCPF"]     = preg_replace("/[^0-9]/", "", $_POST["strCPF"]);
+//         $arrDados["strEmail"]   = $_POST["strEmail"];
+//         // Realizando o login e senha
+//         if($this->objDaoUsuario->existeCPF($arrDados))      throw new Exception("CPF já cadastrado!");
+//         if($this->objDaoUsuario->existeEmail($arrDados))    throw new Exception("E-mail já cadastrado!");
+//         return true;
     }
     
     /**

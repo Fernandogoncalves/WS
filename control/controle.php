@@ -6,11 +6,9 @@
  * @author Alberto Medeiros <albertomedeiros214@gmail.com>
  */
 
-require __DIR__.'../../dao/daoAluno.php';
-require __DIR__.'../../dao/daoEmpreendimento.php';
-require __DIR__.'../../dao/daoVisitas.php';
-require __DIR__.'../../dao/daoCaminhoEmpreendimento.php';
-require __DIR__.'../../dao/daoContato.php';
+// incluindo as utilidades
+require __DIR__.'../../util/Utilidades.php';
+// Incluindo os controladores
 require __DIR__.'../../dao/daoChatBot.php';
 require __DIR__.'../../dao/daoUsuario.php';
 

@@ -1,7 +1,7 @@
 <?php
 session_start();
-ini_set("session.cookie_lifetime","3600");
 error_reporting(E_ALL);
+ini_set("session.cookie_lifetime","3600");
 ini_set('display_errors', 'On');
 
 header("Access-Control-Allow-Credentials: true");
@@ -31,22 +31,12 @@ $app->error(function ( Exception $e = null) use ($app) {
 
 //GET pode possuir um parametro na URL
 $app->get('/:controller/:action(/:parameter)', function ($controller, $action, $parameter = null) use($app) {
-//             include_once "control/{$controller}.php";
-//             $classe = new $controller();
-//             $retorno = call_user_func_array(array($classe, "get_" . $action), array($parameter));
-//             echo '{"result":' . json_encode($retorno) . '}';
     getExecucao(false, $controller, $action, $parameter);
 });
 
 //POST não possui parâmetros na URL, e sim na requisição
 
 $app->post('/:controller/:action', function ($controller, $action) use ($app) {
-//     $request = json_decode(\Slim\Slim::getInstance()->request()->getBody());           
-//     include_once "control/{$controller}.php";
-//     $classe = new $controller();
-//     $retorno = call_user_func_array(array($classe, "post_" . $action), array($request));
-//      echo '{"result":' . json_encode($retorno) . '}';       
-    // Executando o retorno POST
     getExecucao(true, $controller, $action);
 });
 
@@ -65,13 +55,13 @@ function getExecucao($bolPost = false, $controller, $action, $parameter = null){
             // Instanciando as libs
             $request = json_decode(\Slim\Slim::getInstance()->request()->getBody());
             // instanciando o controlador
-            include_once "control/{$controller}.php";
+            include_once "./control/".ucfirst($controller).".php";
             $classe = new $controller();
             // Executando o método
             $arrDadosRetorno = call_user_func_array(array($classe, "post_" . $action), array($request));
         }else{
             // Instanciando as libs
-            include_once "control/{$controller}.php";
+            include_once "./control/".ucfirst($controller).".php";
             $classe = new $controller();
             // Executando o método
             $arrDadosRetorno = call_user_func_array(array($classe, "get_" . $action), array($parameter));
