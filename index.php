@@ -46,9 +46,11 @@ $app->run();
  * Método de padronização do retorno
  */
 function getExecucao($bolPost = false, $controller, $action, $parameter = null){
-    $arrDadosRetorno = array();
-    $bolRetorno = false;
-    $strMensagem = "";
+    $arrDadosRetorno    = array();
+    $bolRetorno         = false;
+    $strMensagem        = "";
+    $parametros         = $parameter;
+    
     try {
         // Caso seja um post
         if($bolPost){
@@ -69,13 +71,41 @@ function getExecucao($bolPost = false, $controller, $action, $parameter = null){
         $bolRetorno = true;
     } catch (Exception $e) {
         // Retornando a mensagem de erro
-        $strMensagem = $e->getMessage();
+        $strMensagem = $e->getMessage() . $e->getTraceAsString();
     }
     // Criando o retorno
     $arrRetorno = array();
     $arrRetorno["result"] = $arrDadosRetorno;
     $arrRetorno["bolRetorno"] = $bolRetorno;
     $arrRetorno["strMensagem"] = $strMensagem;
-
+    // Gerando Log
+    gerarLog($arrRetorno, $parametros);
+    
+    // Retornando 
     echo json_encode($arrRetorno);
+}
+/**
+ * Gerando log
+ * @param unknown $arrRetorno
+ * @param unknown $parametros
+ */
+function gerarLog($arrRetorno, $parametros){
+    // Logando parametros
+    $arrPost        = $_POST;
+    $strParametros = "";
+    $strData        = date("d/m/Y H:i:s");
+    $strParametros     .= " - Dados: " . json_encode($arrPost);
+    $strParametros     .= " - Retorno: " . json_encode($arrRetorno);
+    $strMensagem    = "Data: {$strData} - {$strParametros} \r\n";
+    // Abre ou cria o arquivo bloco1.txt
+    // "a" representa que o arquivo é aberto para ser escrito
+    $fp = fopen("./log.txt", "a+");
+    // Escreve a mensagem passada através da variável $msg
+    $escreve = fwrite($fp, $strMensagem);
+    // Fecha o arquivo
+    fclose($fp);
+    // incluindo a classe de log
+//     include_once 'LogAcesso.php';
+//     $objLog = new LogAcesso();
+//     $objLog->logAcesso($strMensagem);
 }

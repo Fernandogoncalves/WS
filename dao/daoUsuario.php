@@ -17,6 +17,19 @@ class daoUsuario extends Dao {
     function __construct() {
         parent::__construct();
     }
+    
+    function listaCancer(){
+        try {
+            // Filtrando todos os cancers
+            $this->sql ="SELECT
+                          *
+                        FROM cancer";
+            $this->prepare();
+            $this->executar();
+            // Retornando a lista de cancer
+            return $this->buscarDoResultadoAssoc();
+        } catch (Exception $ex) { }
+    }
 
     /**
      * Método de login do usuário
@@ -141,5 +154,92 @@ class daoUsuario extends Dao {
             $arrRetorno = $this->buscarDoResultadoAssoc(true);
             return (!empty($arrRetorno));
         } catch (Exception $ex) { }
+    }
+    
+    /**
+     * Verifica se o email já está cadastrado
+     *
+     * @param array $arrDados
+     * @return boolean
+     */
+    function getIdsOnesignalPorPefil($intIDPerfil){
+        try {
+            $intIDPerfil =(int) $intIDPerfil;
+            $this->sql ="SELECT
+                            u.codigo_onesignal
+                         FROM usuario u
+                         WHERE
+                            ativo = 1
+                            and u.perfil_id = :perfil_id";
+            $this->prepare();
+            $this->bind("perfil_id", $intIDPerfil);
+            $this->executar();
+            return $this->buscarDoResultadoAssoc();
+        } catch (Exception $ex) { }
+    }
+    
+    function cadastrarUsuario(stdClass &$objUsuario){
+        try {
+            $strNovaSenha = $objUsuario->senha;
+            $this->iniciarTransacao();
+            $this->sql ="INSERT INTO usuario
+                        (
+                            perfil_id, 
+                            nome, 
+                            endereco, 
+                            data_nascimento, 
+                            numero_pep, 
+                            contato, 
+                            sexo, 
+                            email, 
+                            ativo, 
+                            login, 
+                            senha, 
+                            cancer_id, 
+                            contato_dois, 
+                            codigo_onesignal
+                        )
+                        VALUES
+                        (
+                            :perfil_id,
+                            :nome,
+                            :endereco,
+                            :data_nascimento,
+                            :numero_pep,
+                            :contato,
+                            :sexo,
+                            :email,
+                            0,
+                            :cpf,
+                            :senha,
+                            :cancer_id,
+                            :contato_dois, 
+                            :codigo_onesignal
+                        )
+                        ";
+            // Preparando a consulta
+            $this->prepare();
+            // Realizando os bids para segurança
+            $this->bind("perfil_id", $objUsuario->perfil_id);
+            $this->bind("nome", $objUsuario->nome);
+            $this->bind("endereco", $objUsuario->endereco);
+            $this->bind("data_nascimento", $objUsuario->data_nascimento);
+            $this->bind("numero_pep", $objUsuario->pep);
+            $this->bind("contato", $objUsuario->contato);
+            $this->bind("sexo", $objUsuario->sexo);
+            $this->bind("email", $objUsuario->email);
+            $this->bind("cpf", $objUsuario->cpf);
+            $this->bind("senha", md5($objUsuario->senha));
+            $this->bind("cancer_id", $objUsuario->cancer_id);
+            $this->bind("contato_dois", @$objUsuario->contato_dois);
+            $this->bind("codigo_onesignal", $objUsuario->onesignal);
+            // Recuperando o id do usuário cadastrado
+            $this->executar();
+            // Recuperar id do usuário
+            $objUsuario->id = $this->retornarUltimoIDInserido();
+            $this->comitarTransacao();
+            // Verificando se houve alterações
+            return ($this->rowCount() > 0);
+        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
     }
 }
