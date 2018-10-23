@@ -30,6 +30,19 @@ class daoUsuario extends Dao {
             return $this->buscarDoResultadoAssoc();
         } catch (Exception $ex) { }
     }
+    
+    function listaPerfil(){
+        try {
+            // Filtrando todos os cancers
+            $this->sql ="SELECT
+                          *
+                        FROM perfil";
+            $this->prepare();
+            $this->executar();
+            // Retornando a lista de cancer
+            return $this->buscarDoResultadoAssoc();
+        } catch (Exception $ex) { }
+    }
 
     /**
      * Método de login do usuário
@@ -57,14 +70,30 @@ class daoUsuario extends Dao {
                         WHERE
                           u.login = :login
                           and 
-                          u.senha = :senha";
+                          u.senha = :senha
+                          and 
+                          u.ativo = 1";
             $this->prepare();
             $this->bind("login", $strLogin);
             $this->bind("senha", $strSenha);
             $this->executar();
             $arrRetorno = $this->buscarDoResultadoAssoc(true);
             if(!empty($arrRetorno)){
+                // Formatando o retorno
                 $arrRetorno["strCpf"] = $arrRetorno["login"];
+                try {
+                    // Atualizando as informações do usuário
+                    $this->sql ="UPDATE usuario
+                         SET codigo_onesignal = :codigo_onesignal, ultimo_acesso = :ultimo_acesso
+                         WHERE id = :id";
+                    $this->prepare();
+                    $this->bind("codigo_onesignal", $arrDados["strCodigoOnesignal"]);
+                    $this->bind("ultimo_acesso",    date("Y-m-d H:i:s"));
+                    $this->bind("id",               $arrRetorno["id"]);
+                    $this->executar();
+                } catch (Exception $e) { }
+               
+                
             }
             // Retornando os dados
             return $arrRetorno;
@@ -109,6 +138,90 @@ class daoUsuario extends Dao {
             }else{
                 throw new Exception("Usuário não encontrado");
             }
+        } catch (Exception $ex) { }
+    }
+    
+    /**
+     * Método que irá atualizar o usuário 
+     *  
+     * @param int $intCpf
+     * @throws Exception
+     * @return mixed
+     */
+    function ativarPaciente($intCpf){
+        try {
+            // Cast no valor para garantir a integridade
+            $intCpf = (int) $intCpf;
+            $this->sql ="SELECT
+                          u.id,
+                          u.email,
+                          u.nome, 
+                          u.codigo_onesignal
+                        FROM usuario u
+                        WHERE
+                          u.login = :login";
+            $this->prepare();
+            $this->bind("login", $intCpf);
+            $this->executar();
+            $arrRetorno = $this->buscarDoResultadoAssoc(true);
+            // Caso encontre o usuário pelo email
+            if(!empty($arrRetorno)){
+                $this->sql ="UPDATE usuario
+                         SET ativo = :ativo
+                         WHERE id = :id";
+                $this->prepare();
+                $this->bind("ativo", 1);
+                $this->bind("id",  $arrRetorno['id']);
+                $this->executar();
+                $intAlterados = $this->rowCount();
+                if($intAlterados > 0) throw new Exception("Não foi possível atualizar!");
+                // Caso tenha alteração
+                return $arrRetorno;
+            }else{
+                throw new Exception("Usuário não encontrado!");
+            }
+        } catch (Exception $ex) { }
+    }
+    
+    /**
+     * Método que irá realizar o filtro dos usuários do sistema
+     * 
+     * @param array $arrDados
+     * @return mixed
+     */
+    function pesquisarUsuarios(array $arrDados){
+        try {
+            $intPerfilID = (int) $arrDados["perfil_id"];
+            $this->sql ="SELECT
+                            u.id,
+                            u.login,
+                            u.nome
+                         FROM usuario u
+                         WHERE
+                            u.perfil_id = :perfil_id ";
+            
+            if(isset($arrDados["cpf"]) && !empty($arrDados["cpf"]))
+                $this->sql .= " AND login = :cpf";
+            
+            if(isset($arrDados["situacao"]) && !empty($arrDados["situacao"]))
+                $this->sql .= " AND ativo = :situacao";
+            
+            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
+                $this->sql .= " AND numero_pep = :pep";
+            
+            $this->prepare();
+            $this->bind("perfil_id", $intPerfilID);
+            
+            if(isset($arrDados["cpf"]) && !empty($arrDados["cpf"]))
+                $this->bind("cpf", $arrDados["cpf"]);
+            
+            if(isset($arrDados["situacao"]) && !empty($arrDados["situacao"]))
+                $this->bind("situacao", $arrDados["situacao"]);
+            
+            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
+                $this->bind("pep", $arrDados["pep"]);
+            $this->executar();
+            return $this->buscarDoResultadoAssoc();
         } catch (Exception $ex) { }
     }
     
