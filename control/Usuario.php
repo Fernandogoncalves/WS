@@ -186,7 +186,7 @@ class Usuario {
      * @param Object $objPaciente
      * @throws Exception
      */
-    function validarCadastoPaciente(stdClass $objPaciente){
+    function validarCadastroPaciente(stdClass $objPaciente){
         // Validação dos dados de usuário
         if(empty($objPaciente->sexo))       throw new Exception("Sexo Não Informado!");
         if(empty($objPaciente->endereco))   throw new Exception("Endereço Não Informado!");
@@ -196,7 +196,7 @@ class Usuario {
         if(empty($objPaciente->pep))        throw new Exception("Nº PEP Não Informado!");
         if(!Utilidades::validarData($objPaciente->data_nascimento))    throw new Exception("Data Nascimento Inválida!");
         // validando os dados que são comuns ao paciente e a equipe médica
-        $this->validarCadasto($objPaciente);
+        $this->validarCadastro($objPaciente);
     }
     
     /**
@@ -205,7 +205,7 @@ class Usuario {
      * @param Object $objPaciente
      * @throws Exception
      */
-    function validarCadasto(stdClass $objPaciente){
+    function validarCadastro(stdClass $objPaciente){
         // Validação dos dados comuns
         if(empty($objPaciente)) throw new Exception("Dados Não Informados!");
         if(empty($objPaciente->cpf)) throw new Exception("CPF Não Informado!");
