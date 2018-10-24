@@ -226,6 +226,32 @@ class daoUsuario extends Dao {
     }
     
     /**
+     * Método que irá retornar o usuário pelo id
+     * 
+     * @param int $intIdUsuario
+     * @throws Exception
+     * @return mixed
+     */
+    function getUsuarioPorId($intIdUsuario){
+        try {
+            // Realizando um cast para garantir a integridade
+            $intIdUsuario = (int) $intIdUsuario;
+            $this->sql ="SELECT
+                            *
+                         FROM usuario u
+                         WHERE
+                            u.id = :id ";
+            $this->prepare();
+            $this->bind("id", $intIdUsuario);
+            $this->executar();
+            $arrUsuario = $this->buscarDoResultadoAssoc(true);
+            if(empty($arrUsuario)) throw new Exception("Usuário Não Encontrado!");
+            // Retornando o usuário
+            return $arrUsuario;
+        } catch (Exception $ex) { }
+    }
+    
+    /**
      * Verifica se o cpf já está cadastrado
      * 
      * @param array $arrDados

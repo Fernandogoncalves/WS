@@ -145,9 +145,32 @@ class Usuario {
         if(empty($arrUsuarios)) throw new Exception("Nenhum Usuário Encontrado!");
         // Formatando o retorno
         foreach($arrUsuarios as &$arrUsuario){
-            $arrUsuario["id"] = "<a href='#/app/gerenciar-usuario/".$arrUsuario["id"]."'><i class='fa fa-edit'></i></a>";
+            $arrUsuario["id"] = "<a href='#/app/editar-usuario/".$arrUsuario["id"]."'><i class='fa fa-edit'></i></a>";
         }
         return $arrUsuarios;
+    }
+    
+    /**
+     * Método que irá retornar o usuário pelo id
+     * @throws Exception
+     * @return mixed
+     */
+    public function get_recuperarUsuarioPorId(){
+        // Criando o dao
+        $this->objDaoUsuario = new daoUsuario();
+        // Validando os dados postados
+        if(empty($_GET["intIdUsuario"])) throw new Exception("Id Não Informado!");
+        // Recuperando os dados do paciente
+        $intIdUsuario = (int) $_GET["intIdUsuario"];
+        // Validações
+        if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");
+        // Cadastrando o paciente
+        $arrUsuarios = $this->objDaoUsuario->getUsuarioPorId($intIdUsuario);
+        if(empty($arrUsuarios)) throw new Exception("Nenhum Usuário Encontrado!");
+        // Realizando o cast do usuário
+        $objUsuario = (object) $arrUsuarios;
+        // Retornando o usuário
+        return $objUsuario;
     }
     
     /**
