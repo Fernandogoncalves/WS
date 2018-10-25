@@ -61,4 +61,30 @@ class daoExame extends Dao {
             return ($this->rowCount() > 0);
         } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
     }
+
+    /**
+     * M�todo que ir� retornar os exames pelo id do paciente (usuario)
+     * 
+     * @param int $intIdUsuario
+     * @throws Exception
+     * @return mixed
+     */
+    function listarExamesDoPaciente($intIdUsuario){
+        try {
+            // Realizando um cast para garantir a integridade
+            $intIdUsuario = (int) $intIdUsuario;
+            $this->sql ="SELECT
+                            *
+                         FROM exame e
+                         WHERE
+                            e.usuario_id = :usuario_id ";
+            $this->prepare();
+            $this->bind("usuario_id", $intIdUsuario);
+            $this->executar();
+            $arrExames = $this->buscarDoResultadoAssoc(true);
+            if(empty($arrExames)) throw new Exception("Exames não foram encontrados!");
+            // Retornando os exames do paciente
+            return $arrExames;
+        } catch (Exception $ex) { }
+    }
 }

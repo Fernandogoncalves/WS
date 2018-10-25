@@ -49,5 +49,26 @@ class Exame {
       
         if(!Utilidades::validarData($objExame->data_exame))    throw new Exception("Data da Realização do Exame Inválida!");
         if(!Utilidades::validarData($objExame->data_previsao))    throw new Exception("Data da Previsão do Exame Inválida!");
-    }    
+    } 
+    
+    /**
+     * Método que irá retornar os exames pelo id do paciente (usuário)
+     * @throws Exception
+     * @return mixed
+     */
+    public function get_listarExamesDoUsuarioPorId(){
+        // Criando o dao
+        $this->objDaoexame = new daoExame();
+        // Validando os dados postados
+        if(empty($_GET["intIdUsuario"])) throw new Exception("Id Não Informado!");
+        // Recuperando os dados do paciente
+        $intIdUsuario = (int) $_GET["intIdUsuario"];
+        // Validações
+        if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");
+        // Listando os exames do paciente
+        $arrExames = $this->objDaoexame->listarExamesDoPaciente($intIdUsuario);
+        if(empty($arrExames)) throw new Exception("Exames não foram Encontrados!");        
+        // Retornando a lista de exames do paciente
+        return $arrExames;
+    }
 }
