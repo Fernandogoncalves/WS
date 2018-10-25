@@ -42,12 +42,8 @@ class Exame {
     function validarCadastroExame(stdClass $objExame){
         // Validação dos dados de exame
         if(empty($objExame->data_exame))       throw new Exception("Data da Realização do Exame Não Informada!");
-        if(empty($objExame->data_previsao))       throw new Exception("Data da Previsão do Exame Não Informada!");
-        //verificar como realizar esse lançamento
-        if(empty($objExame->data_recebimento))       throw new Exception("Data do Recebimento Exame Não Informada!");
-        //verificar como realizar esse lançamento
-        if(empty($objExame->usuario_id))   throw new Exception("Endereço Não Informado!");
-        
+        if(empty($objExame->data_previsao))       throw new Exception("Data da Previsão do Exame Não Informada!");        
+        if(empty($objExame->usuario_id))   throw new Exception("Paciente Não Informado!");        
         if(empty($objExame->tipo_exame_id))     throw new Exception("Cidade Não Informada!");
         if(empty($objExame->area_id))         throw new Exception("UF Não Informado!");
       
