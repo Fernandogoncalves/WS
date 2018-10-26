@@ -77,7 +77,13 @@ class daoExame extends Dao {
                             *
                          FROM exame e
                          WHERE
-                            e.usuario_id = :usuario_id ";
+                            e.usuario_id = :usuario_id 
+                         ORDER BY 
+                            e.data_previsao
+                         ASC
+                            ,e.data_recebimento
+                         ASC
+                        ";
             $this->prepare();
             $this->bind("usuario_id", $intIdUsuario);
             $this->executar();
