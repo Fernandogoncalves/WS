@@ -93,4 +93,39 @@ class daoExame extends Dao {
             return $arrExames;
         } catch (Exception $ex) { }
     }
+
+    /**
+     * M�todo que ir� retornar os exames filtrados
+     * 
+     * @param int $intIdArea,$intIdTipoExame,$intPep
+     * @throws Exception
+     * @return mixed
+     */
+    function filtrarExames($intIdArea,$intIdTipoExame,$intPep){
+        try {
+            // Realizando um cast para garantir a integridade
+            $intIdArea = (int) $intIdArea;
+            $intIdTipoExame = (int) $intIdTipoExame;
+            //verificar como realizar a busca do usuário por pep
+            $intPep = (int) $intPep;
+
+            $this->sql ="SELECT
+                            *
+                         FROM exame e
+                         WHERE
+                            e.area_id = :area_id
+                         AND
+                            e.tipo_exame_id = :tipo_exame_id
+                         
+                        ";
+            $this->prepare();
+            $this->bind("area_id", $intIdArea);
+            $this->bind("tipo_exame_id", $intIdTipoExame);
+            $this->executar();
+            $arrExames = $this->buscarDoResultadoAssoc(true);
+            if(empty($arrExames)) throw new Exception("Exames não foram encontrados!");
+            // Retornando os exames filtrados
+            return $arrExames;
+        } catch (Exception $ex) { }
+    }
 }
