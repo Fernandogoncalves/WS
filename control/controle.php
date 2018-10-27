@@ -8,6 +8,7 @@
 
 // incluindo as utilidades
 require __DIR__.'../../util/Utilidades.php';
+require __DIR__.'../../util/Constantes.php';
 // Incluindo os controladores
 require __DIR__.'../../dao/daoChatBot.php';
 require __DIR__.'../../dao/daoUsuario.php';

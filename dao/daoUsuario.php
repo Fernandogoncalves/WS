@@ -246,6 +246,7 @@ class daoUsuario extends Dao {
             $this->executar();
             $arrUsuario = $this->buscarDoResultadoAssoc(true);
             if(empty($arrUsuario)) throw new Exception("Usuário Não Encontrado!");
+            $arrUsuario["cpf"] = $arrUsuario["login"];
             // Retornando o usuário
             return $arrUsuario;
         } catch (Exception $ex) { }
@@ -336,7 +337,9 @@ class daoUsuario extends Dao {
                             senha, 
                             cancer_id, 
                             contato_dois, 
-                            codigo_onesignal
+                            codigo_onesignal,
+                            uf,
+                            cidade
                         )
                         VALUES
                         (
@@ -353,7 +356,9 @@ class daoUsuario extends Dao {
                             :senha,
                             :cancer_id,
                             :contato_dois, 
-                            :codigo_onesignal
+                            :codigo_onesignal,
+                            :uf,
+                            :cidade
                         )
                         ";
             // Preparando a consulta
@@ -372,6 +377,8 @@ class daoUsuario extends Dao {
             $this->bind("cancer_id", $objUsuario->cancer_id);
             $this->bind("contato_dois", @$objUsuario->contato_dois);
             $this->bind("codigo_onesignal", $objUsuario->onesignal);
+            $this->bind("uf", $objUsuario->uf);
+            $this->bind("cidade", $objUsuario->cidade);
             // Recuperando o id do usuário cadastrado
             $this->executar();
             // Recuperar id do usuário

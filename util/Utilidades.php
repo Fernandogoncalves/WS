@@ -13,6 +13,12 @@ class Utilidades {
         return $result;
     }
     
+    public static function validarEmail($email) {
+    
+        return filter_var($email, FILTER_VALIDATE_EMAIL);
+        //return preg_match('|^[^0-9][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[@][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,4}$|', $email);
+    }
+    
     static function validaCPF($cpf = null) {
 
     	// Verifica se um número foi informado
@@ -86,9 +92,12 @@ class Utilidades {
     static function enviarNotificacao(array $arrDados){
         // informações padrões
         $arrCampos = array(
+            "small_icon" => "http://smtp.curapelanatureza.com.br/ws/logo.png",
+            "ic_stat_onesignal_default" => "http://smtp.curapelanatureza.com.br/ws/logo.png",
             'app_id' => "08582d2d-8cb3-4ca3-9c3d-b86be7ec5e8b",
             'data' => array("foo" => "bar")
         );
+        
         // Caso não tenha sido informado um segmento
         if(!isset($arrDados["include_player_ids"])){
             $arrCampos['included_segments'] = array('All');
