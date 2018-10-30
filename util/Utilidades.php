@@ -137,10 +137,11 @@ class Utilidades {
     /**
      * Método que irá formatar a data para o formato BR dd/mm/yyyy
      * 
-     * @param string $strData
+     * @param unknown $strData
+     * @param string $strFormt
      */
-    static function formatarDataPraBr($strData){
-        $date = DateTime::createFromFormat('Y-m-d', $strData);
+    static function formatarDataPraBr($strData, $strFormt = 'Y-m-d'){
+        $date = DateTime::createFromFormat($strFormt, $strData);
         return $date->format('d/m/Y');
     }
 }

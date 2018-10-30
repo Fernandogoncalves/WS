@@ -71,7 +71,7 @@ function getExecucao($bolPost = false, $controller, $action, $parameter = null){
         $bolRetorno = true;
     } catch (Exception $e) {
         // Retornando a mensagem de erro
-        $strMensagem = $e->getMessage() . $e->getTraceAsString();
+        $strMensagem = $e->getMessage();// . $e->getTraceAsString();
     }
     // Criando o retorno
     $arrRetorno = array();

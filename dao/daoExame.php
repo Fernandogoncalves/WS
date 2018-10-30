@@ -18,8 +18,82 @@ class daoExame extends Dao {
         parent::__construct();
     }
     
+    /**
+     * Método que irá listar as áreas
+     * 
+     * @return mixed
+     */
+    function listarAreas(){
+        try {
+            // Filtrando todos os cancers
+            $this->sql ="SELECT
+                          *
+                        FROM area";
+            $this->prepare();
+            $this->executar();
+            // Retornando a lista de cancer
+            return $this->buscarDoResultadoAssoc();
+        } catch (Exception $ex) { }
+    }
     
+    /**
+     * Método que irá listar os tipos de exames
+     * 
+     * @return mixed
+     */
+    function listarTiposExames(){
+        try {
+            // Filtrando todos os cancers
+            $this->sql ="SELECT
+                          *
+                        FROM tipo_exame";
+            $this->prepare();
+            $this->executar();
+            // Retornando a lista de cancer
+            return $this->buscarDoResultadoAssoc();
+        } catch (Exception $ex) { }
+    }
     
+    /**
+     * Método que irá calcular a previsão de entrega para o tipo de exame
+     * 
+     * @param integer $intIdTipoExame
+     * @return mixed
+     */
+    function getPrevisaoPorTipoExame($intIdTipoExame, $strDataColeta){
+        try {
+            // Formatando a data para o banco de dados
+            $strDataColeta = Utilidades::formatarDataPraBanco($strDataColeta);
+            // Filtrando todos os cancers
+            $this->sql ="SELECT
+                          SUM(TIMESTAMPDIFF(DAY,data_exame,data_recebimento)) AS total_dias,
+                          COUNT(ID) AS qtd_exames,
+                          ROUND(SUM(TIMESTAMPDIFF(DAY,data_exame,data_recebimento)) / COUNT(ID), 0) AS media,
+                          :data_coleta + INTERVAL ROUND(SUM(TIMESTAMPDIFF(DAY,data_exame,data_recebimento)) / COUNT(ID), 0) DAY AS previsao
+                        FROM exame
+                        WHERE 
+                            tipo_exame_id = :tipo_exame_id 
+                            AND data_exame >= NOW() - INTERVAL 120 DAY";
+            $this->prepare();
+            // Realizando os bids para seguran�a
+            $this->bind("tipo_exame_id", $intIdTipoExame);
+            $this->bind("data_coleta", $strDataColeta);
+            $this->executar();
+            $arrPrevisao = $this->buscarDoResultadoAssoc(true);
+            // Formatando a data
+            if(!empty($arrPrevisao) && $arrPrevisao["qtd_exames"] > 0) $arrPrevisao["previsao"] = Utilidades::formatarDataPraBr($arrPrevisao["previsao"], 'Y-m-d');
+            // Retornando a lista de cancer
+            return $arrPrevisao;
+        } catch (Exception $ex) {}
+    }
+    
+    /**
+     * Método que irá cadastrar o exame
+     * 
+     * @param stdClass $objExame
+     * @throws Exception
+     * @return boolean
+     */
     function cadastrarExame(stdClass &$objExame){
         try {
             $this->iniciarTransacao();
@@ -27,7 +101,6 @@ class daoExame extends Dao {
                         (
                             data_exame, 
                             data_previsao,
-                            data_recebimento,
                             usuario_id,
                             tipo_exame_id,
                             area_id
@@ -36,7 +109,6 @@ class daoExame extends Dao {
                         (
                             :data_exame, 
                             :data_previsao,
-                            :data_recebimento,
                             :usuario_id,
                             :tipo_exame_id,
                             :area_id
@@ -44,10 +116,10 @@ class daoExame extends Dao {
                         ";
             // Preparando a consulta
             $this->prepare();
-            // Realizando os bids para seguran�a
+            // Realizando os bids para segurança
             $this->bind("data_exame", $objExame->data_exame);
-            $this->bind("data_previsao", $objExame->data_previsao);
-            $this->bind("data_recebimento", $objExame->data_recebimento);
+            $this->bind("data_previsao", Utilidades::formatarDataPraBanco($objExame->data_previsao));
+            $this->bind("data_exame", Utilidades::formatarDataPraBanco($objExame->data_exame));
             $this->bind("usuario_id", $objExame->usuario_id);
             $this->bind("tipo_exame_id", $objExame->tipo_exame_id);
             $this->bind("area_id", $objExame->area_id);            
@@ -63,7 +135,7 @@ class daoExame extends Dao {
     }
 
     /**
-     * M�todo que ir� retornar os exames pelo id do paciente (usuario)
+     * Método que irá retornar os exames pelo id do paciente (usuario)
      * 
      * @param int $intIdUsuario
      * @throws Exception
@@ -79,11 +151,8 @@ class daoExame extends Dao {
                          WHERE
                             e.usuario_id = :usuario_id 
                          ORDER BY 
-                            e.data_previsao
-                         ASC
-                            ,e.data_recebimento
-                         ASC
-                        ";
+                            e.data_previsao ASC,
+                            e.data_recebimento ASC ";
             $this->prepare();
             $this->bind("usuario_id", $intIdUsuario);
             $this->executar();
