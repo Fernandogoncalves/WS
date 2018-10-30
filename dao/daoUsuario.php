@@ -247,6 +247,7 @@ class daoUsuario extends Dao {
             $arrUsuario = $this->buscarDoResultadoAssoc(true);
             if(empty($arrUsuario)) throw new Exception("Usuário Não Encontrado!");
             $arrUsuario["cpf"] = $arrUsuario["login"];
+            $arrUsuario["data_nascimento"] = Utilidades::formatarDataPraBr($arrUsuario["data_nascimento"]);
             // Retornando o usuário
             return $arrUsuario;
         } catch (Exception $ex) { }
@@ -318,25 +319,87 @@ class daoUsuario extends Dao {
         } catch (Exception $ex) { }
     }
     
+    /**
+     * Método que irá editar o usuário na base de dados
+     * 
+     * @param stdClass $objUsuario
+     * @throws Exception
+     * @return boolean
+     */
+    function cadastrarEditarUsuario(stdClass &$objUsuario){
+        try {
+            $strNovaSenha = $objUsuario->senha;
+            $this->iniciarTransacao();
+            $this->sql ="
+                
+                       UPDATE usuario
+                       SET  perfil_id = :perfil_id,
+                            nome = :nome,
+                            endereco = :endereco,
+                            data_nascimento = :data_nascimento, 
+                            numero_pep = :numero_pep,
+                            contato = :contato,
+                            sexo = :sexo,
+                            email = :email,
+                            ativo = :ativo, 
+                            login = :cpf,
+                            cancer_id = :cancer_id,
+                            contato_dois = :contato_dois, 
+                            uf = :uf,
+                            cidade = :cidade
+                       WHERE id = :id";
+            // Preparando a consulta
+            $this->prepare();
+            // Realizando os bids para segurança
+            $this->bind("id", $objUsuario->id);
+            $this->bind("perfil_id", $objUsuario->perfil_id);
+            $this->bind("nome", $objUsuario->nome);
+            $this->bind("endereco", @$objUsuario->endereco);
+            $this->bind("data_nascimento", $objUsuario->data_nascimento);
+            $this->bind("numero_pep", @$objUsuario->numero_pep);
+            $this->bind("contato", @$objUsuario->contato);
+            $this->bind("sexo", $objUsuario->sexo);
+            $this->bind("email", $objUsuario->email);
+            $this->bind("cpf", $objUsuario->cpf);
+            $this->bind("ativo", $objUsuario->ativo);
+            $this->bind("cancer_id", $objUsuario->cancer_id);
+            $this->bind("contato_dois", @$objUsuario->contato_dois);
+            $this->bind("uf", @$objUsuario->uf);
+            $this->bind("cidade", @$objUsuario->cidade);
+            // Recuperando o id do usuário cadastrado
+            $this->executar();
+            $this->comitarTransacao();
+            // Verificando se houve alterações
+            return ($this->rowCount() > 0);
+        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
+    }
+    
+    /**
+     * Método que irá cadastrar o usuário
+     *
+     * @param stdClass $objUsuario
+     * @throws Exception
+     * @return boolean
+     */
     function cadastrarUsuario(stdClass &$objUsuario){
         try {
             $strNovaSenha = $objUsuario->senha;
             $this->iniciarTransacao();
             $this->sql ="INSERT INTO usuario
                         (
-                            perfil_id, 
-                            nome, 
-                            endereco, 
-                            data_nascimento, 
-                            numero_pep, 
-                            contato, 
-                            sexo, 
-                            email, 
-                            ativo, 
-                            login, 
-                            senha, 
-                            cancer_id, 
-                            contato_dois, 
+                            perfil_id,
+                            nome,
+                            endereco,
+                            data_nascimento,
+                            numero_pep,
+                            contato,
+                            sexo,
+                            email,
+                            ativo,
+                            login,
+                            senha,
+                            cancer_id,
+                            contato_dois,
                             codigo_onesignal,
                             uf,
                             cidade
@@ -355,7 +418,7 @@ class daoUsuario extends Dao {
                             :cpf,
                             :senha,
                             :cancer_id,
-                            :contato_dois, 
+                            :contato_dois,
                             :codigo_onesignal,
                             :uf,
                             :cidade
@@ -366,10 +429,10 @@ class daoUsuario extends Dao {
             // Realizando os bids para segurança
             $this->bind("perfil_id", $objUsuario->perfil_id);
             $this->bind("nome", $objUsuario->nome);
-            $this->bind("endereco", $objUsuario->endereco);
+            $this->bind("endereco", @$objUsuario->endereco);
             $this->bind("data_nascimento", $objUsuario->data_nascimento);
-            $this->bind("numero_pep", $objUsuario->pep);
-            $this->bind("contato", $objUsuario->contato);
+            $this->bind("numero_pep", @$objUsuario->pep);
+            $this->bind("contato", @$objUsuario->contato);
             $this->bind("sexo", $objUsuario->sexo);
             $this->bind("email", $objUsuario->email);
             $this->bind("cpf", $objUsuario->cpf);
@@ -377,8 +440,8 @@ class daoUsuario extends Dao {
             $this->bind("cancer_id", $objUsuario->cancer_id);
             $this->bind("contato_dois", @$objUsuario->contato_dois);
             $this->bind("codigo_onesignal", $objUsuario->onesignal);
-            $this->bind("uf", $objUsuario->uf);
-            $this->bind("cidade", $objUsuario->cidade);
+            $this->bind("uf", @$objUsuario->uf);
+            $this->bind("cidade", @$objUsuario->cidade);
             // Recuperando o id do usuário cadastrado
             $this->executar();
             // Recuperar id do usuário

@@ -124,4 +124,23 @@ class Utilidades {
         return $objRetorno;
     }
     
+    /**
+     * Método que irá formatar a data para o formato de banco de dados yyy-mm-dd
+     * 
+     * @param string $strData
+     */
+    static function formatarDataPraBanco($strData){
+        $date = DateTime::createFromFormat('d/m/Y', $strData);
+        return $date->format('Y-m-d');
+    }
+    
+    /**
+     * Método que irá formatar a data para o formato BR dd/mm/yyyy
+     * 
+     * @param string $strData
+     */
+    static function formatarDataPraBr($strData){
+        $date = DateTime::createFromFormat('Y-m-d', $strData);
+        return $date->format('d/m/Y');
+    }
 }

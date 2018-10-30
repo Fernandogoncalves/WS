@@ -192,6 +192,7 @@ class Usuario {
         $this->validarCadastroPaciente($objPaciente);
         $objPaciente->perfil_id = 1;// Setando o id perfil para paciente
         $objPaciente->cpf = preg_replace("/[^0-9]/", "", $objPaciente->cpf);// Removendo formatação do cpf
+        $objPaciente->data_nascimento = Utilidades::formatarDataPraBanco($objPaciente->data_nascimento);// Formatando a data para o formato de banco de dados
         // Cadastrando o paciente
         $bolCadastro = $this->objDaoUsuario->cadastrarUsuario($objPaciente);// cadastrando o paciente na base
         if(!$bolCadastro) throw new Exception("Não foi possível cadastrar o usuário!");
@@ -222,37 +223,30 @@ class Usuario {
      * @throws Exception
      * @return boolean
      */
-    public function post_cadastrarUsuarioMedico(){
+    public function post_cadastrarUsuario(){
         $bolRetorno = false;
         // Criando o dao
         $this->objDaoUsuario = new daoUsuario();
         // Validando os dados postados
-        if(empty($_POST["dadosPaciente"])) throw new Exception("Dados Não Informados!");
+        if(empty($_POST["dadosUsuario"])) throw new Exception("Dados Não Informados!");
         // Recuperando os dados do paciente
-        $objPaciente = json_decode($_POST["dadosPaciente"]);
-        $objPaciente->onesignal = $_POST["onesignal"];// Recuperando o id do onesignal
+        $objPaciente = json_decode($_POST["dadosUsuario"]);
+        $objPaciente->onesignal = "";// Recuperando o id do onesignal
+        $objPaciente->cpf = $objPaciente->login;
         // Validando os dados postados
-        $this->validarCadastroPaciente($objPaciente);
-        $objPaciente->perfil_id = 2;// Setando o id perfil para paciente
+        if($objPaciente->perfil_id == 1)
+            $this->validarCadastroPaciente($objPaciente);
+        else {
+            $this->validarCadastro($objPaciente);
+            $objPaciente->cancer_id = 7;// Setando o cancer para nenhum
+        }
+        // Formatando o cpf
         $objPaciente->cpf = preg_replace("/[^0-9]/", "", $objPaciente->cpf);// Removendo formatação do cpf
+        $objPaciente->data_nascimento = Utilidades::formatarDataPraBanco($objPaciente->data_nascimento);// Formatando a data para o formato de banco de dados
         // Cadastrando o paciente
         $bolCadastro = $this->objDaoUsuario->cadastrarUsuario($objPaciente);// cadastrando o paciente na base
         if(!$bolCadastro) throw new Exception("Não foi possível cadastrar o usuário!");
-        // Recuperando todos os usuários admin
-        $arrIDsOnesinal = $this->objDaoUsuario->getIdsOnesignalPorPefil(2);
-        $arrIds = array();
-        // Formatando os ids para envio em massa
-        foreach($arrIDsOnesinal as $arrValor){
-            $arrIds[] = $arrValor["codigo_onesignal"];
-        }
-        // Criando os dados de notificação
-        $arrDadosNotificacao = array(
-            'include_player_ids' => $arrIds,
-            "headings" => array("en" => "Cadastro de Paciente Pendente"),
-            'contents' => array("en" => "Paciente com o nº do PEP: " . $objPaciente->pep)
-        );
-        // Enviando a notificação
-        $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
+        
         return true;
     }
     
@@ -267,30 +261,36 @@ class Usuario {
         // Criando o dao
         $this->objDaoUsuario = new daoUsuario();
         // Validando os dados postados
-        if(empty($_POST["dadosPaciente"])) throw new Exception("Dados Não Informados!");
+        if(empty($_POST["dadosUsuario"])) throw new Exception("Dados Não Informados!");
         // Recuperando os dados do paciente
-        $objPaciente = json_decode($_POST["dadosPaciente"]);
-        // Validando os dados postados
-        $this->validarCadastroPaciente($objPaciente);
-        $objPaciente->cpf = preg_replace("/[^0-9]/", "", $objPaciente->cpf);// Removendo formatação do cpf
+        $objUsuario = json_decode($_POST["dadosUsuario"]);
+        // Validando os dados postados de paciente
+        if($objUsuario->perfil_id == 1)
+            $this->validarCadastroPaciente($objUsuario, true);
+        else 
+            $this->validarCadastro($objUsuario, true);
+        // Formatando o cpf
+        $objUsuario->cpf = preg_replace("/[^0-9]/", "", $objUsuario->cpf);// Removendo formatação do cpf
+        $objUsuario->data_nascimento = Utilidades::formatarDataPraBanco($objUsuario->data_nascimento);// Formatando a data para o formato de banco de dados
+        // Recuperando o usuário da base para realizar comparações
+        $objUsuarioBase = (object) $this->objDaoUsuario->getUsuarioPorId($objUsuario->id);
+        if(empty($objUsuarioBase)) throw new Exception("Usuário não encontrado!");
         // Cadastrando o paciente
-        $bolCadastro = $this->objDaoUsuario->cadastrarUsuario($objPaciente);// cadastrando o paciente na base
-        if(!$bolCadastro) throw new Exception("Não foi possível cadastrar o usuário!");
-        // Recuperando todos os usuários admin
-        $arrIDsOnesinal = $this->objDaoUsuario->getIdsOnesignalPorPefil(2);
-        $arrIds = array();
-        // Formatando os ids para envio em massa
-        foreach($arrIDsOnesinal as $arrValor){
-            $arrIds[] = $arrValor["codigo_onesignal"];
+        $bolEditado = $this->objDaoUsuario->cadastrarEditarUsuario($objUsuario);// Editar o usuário
+        if(!$bolEditado) throw new Exception("Não foi possível editar o usuário!");
+        // Caso o usuário tenha sido ativado
+        if(@$objUsuarioBase->ativo == 0 && @$objUsuario->ativo ==1){
+            // Recuperando todos os usuários admin
+            $arrIds = array(@$objUsuarioBase->codigo_onesignal);
+            // Criando os dados de notificação
+            $arrDadosNotificacao = array(
+                'include_player_ids' => $arrIds,
+                "headings" => array("en" => "Cadastro Aprovado!"),
+                'contents' => array("en" => "Olá {$objUsuarioBase->nome}, seu cadastro foi aprovado! Agora você poderá acessar o Conexão Vida - IMIP." )
+            );
+            // Enviando a notificação
+            $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
         }
-        // Criando os dados de notificação
-        $arrDadosNotificacao = array(
-            'include_player_ids' => $arrIds,
-            "headings" => array("en" => "Cadastro de Paciente Pendente"),
-            'contents' => array("en" => "Paciente com o nº do PEP: " . $objPaciente->pep)
-        );
-        // Enviando a notificação
-        $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
         return true;
     }
     
@@ -358,41 +358,50 @@ class Usuario {
     /**
      * Método que irá validar os dados de cadastro do Paciente
      * 
-     * @param Object $objPaciente
+     * @param stdClass $objPaciente
+     * @param string $bolEdit
      * @throws Exception
      */
-    function validarCadastroPaciente(stdClass $objPaciente){
+    function validarCadastroPaciente(stdClass $objPaciente, $bolEdit = false){
         // Validação dos dados de usuário
         if(empty($objPaciente->sexo))       throw new Exception("Sexo Não Informado!");
         if(empty($objPaciente->endereco))   throw new Exception("Endereço Não Informado!");
         if(empty($objPaciente->cidade))     throw new Exception("Cidade Não Informada!");
         if(empty($objPaciente->uf))         throw new Exception("UF Não Informado!");
         if(empty($objPaciente->contato))    throw new Exception("Nº de Contato Não Informado!");
-        if(empty($objPaciente->pep))        throw new Exception("Nº PEP Não Informado!");
+        if($bolEdit){// caso seja edição
+            if(empty($objPaciente->numero_pep))        throw new Exception("Nº PEP Não Informado!");
+        }else{
+            if(empty($objPaciente->pep))        throw new Exception("Nº PEP Não Informado!");
+        }
         if(!Utilidades::validarData($objPaciente->data_nascimento))    throw new Exception("Data Nascimento Inválida!");
         // validando os dados que são comuns ao paciente e a equipe médica
-        $this->validarCadastro($objPaciente);
+        $this->validarCadastro($objPaciente, $bolEdit);
     }
     
     /**
      * Método que irá validar os dados de acesso do usuário seja paciente ou equipe médica
      * 
-     * @param Object $objUsuario
+     * @param stdClass $objUsuario
+     * @param string $bolEdit
      * @throws Exception
      */
-    function validarCadastro(stdClass $objUsuario){
+    function validarCadastro(stdClass $objUsuario, $bolEdit = false){
         // Validação dos dados comuns
         if(empty($objUsuario)) throw new Exception("Dados Não Informados!");
         if(empty($objUsuario->cpf)) throw new Exception("CPF Não Informado!");
-        if(!Utilidades::validaCPF($objUsuario->cpf)) throw new Exception("CPF invalido!");
-        if(empty($objUsuario->senha)) throw new Exception("Senha Não Informada!");
-        if(strlen($objUsuario->senha) < 6 || strlen($objUsuario->senha) > 8) throw new Exception("Senha inválida! Sua senha deve conter entre 6 e 8 caracteres!");
-        if($objUsuario->senha != $objUsuario->confirmacao_senha) throw new Exception("Senhas são diferentes!");
         if(empty($objUsuario->email)) throw new Exception("E-mail Não Informado!");
-        if(!Utilidades::validarEmail($objUsuario->email)) throw new Exception("E-mail Não E-mail!");
+        if(!Utilidades::validaCPF($objUsuario->cpf)) throw new Exception("CPF invalido!");
+        if(!Utilidades::validarEmail($objUsuario->email)) throw new Exception("E-mail invalido!");
         if(empty($objUsuario->nome)) throw new Exception("Nome Não Informado!");
-        if($this->objDaoUsuario->existeCPF(array($objUsuario->cpf))) throw new Exception("CPF já cadastrado!");
-        if($this->objDaoUsuario->existeEmail(array("strEmail"=>$objUsuario->email))) throw new Exception("Email já cadastrado!");
+        // Caso não seja editar
+        if(!$bolEdit){
+            if(empty($objUsuario->senha)) throw new Exception("Senha Não Informada!");
+            if(strlen($objUsuario->senha) < 6 || strlen($objUsuario->senha) > 8) throw new Exception("Senha inválida! Sua senha deve conter entre 6 e 8 caracteres!");
+            if($objUsuario->senha != $objUsuario->confirmacao_senha) throw new Exception("Senhas são diferentes!");
+            if($this->objDaoUsuario->existeCPF(array("strCPF"=>$objUsuario->cpf))) throw new Exception("CPF já cadastrado!");
+            if($this->objDaoUsuario->existeEmail(array("strEmail"=>$objUsuario->email))) throw new Exception("Email já cadastrado!");
+        }
     }
     
 }
