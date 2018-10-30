@@ -101,26 +101,31 @@ class daoExame extends Dao {
      * @throws Exception
      * @return mixed
      */
-    function filtrarExames($intIdArea,$intIdTipoExame,$intPep){
+    function filtrarExames($intIdArea,$intIdTipoExame,$pep){
         try {
             // Realizando um cast para garantir a integridade
             $intIdArea = (int) $intIdArea;
             $intIdTipoExame = (int) $intIdTipoExame;
-            //verificar como realizar a busca do usuário por pep
-            $intPep = (int) $intPep;
-
+           
             $this->sql ="SELECT
                             *
                          FROM exame e
+                         INNER JOIN usuario u
+                         ON
+                         e.usuario_id = u.id
                          WHERE
                             e.area_id = :area_id
                          AND
                             e.tipo_exame_id = :tipo_exame_id
+                         AND
+                            u.numero_pep= :numero_pep
+
                          
                         ";
             $this->prepare();
             $this->bind("area_id", $intIdArea);
             $this->bind("tipo_exame_id", $intIdTipoExame);
+            $this->bind("numero_pep", $pep);
             $this->executar();
             $arrExames = $this->buscarDoResultadoAssoc(true);
             if(empty($arrExames)) throw new Exception("Exames não foram encontrados!");

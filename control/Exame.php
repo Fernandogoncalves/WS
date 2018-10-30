@@ -44,8 +44,8 @@ class Exame {
         if(empty($objExame->data_exame))       throw new Exception("Data da Realização do Exame Não Informada!");
         if(empty($objExame->data_previsao))       throw new Exception("Data da Previsão do Exame Não Informada!");        
         if(empty($objExame->usuario_id))   throw new Exception("Paciente Não Informado!");        
-        if(empty($objExame->tipo_exame_id))     throw new Exception("Cidade Não Informada!");
-        if(empty($objExame->area_id))         throw new Exception("UF Não Informado!");
+        if(empty($objExame->tipo_exame_id))     throw new Exception("Tipo de exame Não Informado!");
+        if(empty($objExame->area_id))         throw new Exception("Área Não Informada!");
       
         if(!Utilidades::validarData($objExame->data_exame))    throw new Exception("Data da Realização do Exame Inválida!");
         if(!Utilidades::validarData($objExame->data_previsao))    throw new Exception("Data da Previsão do Exame Inválida!");
@@ -79,11 +79,11 @@ class Exame {
         // Recuperando os filtros 
         $intIdArea = (int) $_GET["intIdArea"];
         $intIdTipoExame = (int) $_GET["intIdTipoExame"];
-        $intPep = (int) $_GET["intPep"];
+        $pep =  $_GET["pep"];
         // Validações
-        if($intPep == 0) throw new Exception("Pep Inválido!");
+        if($intPep == '0') throw new Exception("Pep Inválido!");
         // Filtrando Exames
-        $arrExames = $this->objDaoexame->filtrarExames($intIdArea,$intIdTipoExame,$intPep);
+        $arrExames = $this->objDaoexame->filtrarExames($intIdArea,$intIdTipoExame,$pep);
         if(empty($arrExames)) throw new Exception("Exames não foram Encontrados!");        
         // Retornando a lista de exames filtrados
         return $arrExames;
