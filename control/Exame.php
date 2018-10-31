@@ -104,17 +104,14 @@ class Exame {
 
     public function get_filtrarExames(){
         // Criando o dao
-        $this->objDaoexame = new daoExame();
-        
-        // Recuperando os filtros 
-        $intIdArea = (int) $_GET["intIdArea"];
-        $intIdTipoExame = (int) $_GET["intIdTipoExame"];
-        $pep =  $_GET["pep"];
-        // Validações
-        if($intPep == '0') throw new Exception("Pep Inválido!");
-        // Filtrando Exames
-        $arrExames = $this->objDaoexame->filtrarExames($intIdArea,$intIdTipoExame,$pep);
-        if(empty($arrExames)) throw new Exception("Exames não foram Encontrados!");        
+        $this->objDaoexame = new daoExame();        
+         // Validando os filtros
+         if(empty($_POST["filtroBusca"])) throw new Exception("Dados Não Informados!");
+         // Recuperando os dados do paciente
+        $objFiltro = json_decode($_POST["filtroBusca"]);
+        // Cadastrando o paciente
+        $arrExames = $this->objDaoexame->filtrarExames((array) $objFiltro);// cadastrando o paciente na base
+        if(empty($arrExames)) throw new Exception("Nenhum Exame Encontrado!");
         // Retornando a lista de exames filtrados
         return $arrExames;
     }
