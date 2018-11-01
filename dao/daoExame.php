@@ -133,6 +133,32 @@ class daoExame extends Dao {
             return ($this->rowCount() > 0);
         } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
     }
+    
+    /**
+     * Método que ira realizar o recebimento do exame
+     * 
+     * @param stdClass $objExame
+     * @throws Exception
+     * @return boolean
+     */
+    function confirmarRecebimento(stdClass &$objExame){
+        try {
+            $this->iniciarTransacao();
+            $this->sql ="UPDATE exame
+                        SET data_recebimento = :data_recebimento
+                        WHERE usuario_id = :usuario_id ";
+            // Preparando a consulta
+            $this->prepare();
+            // Realizando os bids para segurança
+            $this->bind("data_exame", $objExame->data_recebimento);
+            $this->bind("usuario_id", $objExame->usuario_id);
+            // Recuperando o id do exame cadastrado
+            $this->executar();
+            $this->comitarTransacao();
+            // Verificando se houve alterações
+            return ($this->rowCount() > 0);
+        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
+    }
 
     /**
      * Método que irá retornar os exames pelo id do paciente (usuario)
@@ -151,8 +177,8 @@ class daoExame extends Dao {
                          WHERE
                             e.usuario_id = :usuario_id 
                          ORDER BY 
-                            e.data_previsao ASC,
-                            e.data_recebimento ASC ";
+                            e.data_previsao DESC,
+                            e.data_exame DESC ";
             $this->prepare();
             $this->bind("usuario_id", $intIdUsuario);
             $this->executar();
@@ -171,7 +197,7 @@ class daoExame extends Dao {
      * @return mixed
      */
     function filtrarExames(array $arrDados){
-        if(isset($arrDados["pep"]){
+//         if(isset($arrDados["pep"]){
             try{
                 $this->sql ="SELECT
                                 *
@@ -197,10 +223,6 @@ class daoExame extends Dao {
                 return $arrExames;
                 }
                 catch (Exception $ex) { }
-            }
-                
-        
-      
             
     } 
 }

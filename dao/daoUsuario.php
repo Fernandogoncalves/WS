@@ -346,7 +346,8 @@ class daoUsuario extends Dao {
                             cancer_id = :cancer_id,
                             contato_dois = :contato_dois, 
                             uf = :uf,
-                            cidade = :cidade
+                            cidade = :cidade,
+                            data_alteracao = :data_alteracao
                        WHERE id = :id";
             // Preparando a consulta
             $this->prepare();
@@ -365,6 +366,7 @@ class daoUsuario extends Dao {
             $this->bind("cancer_id", $objUsuario->cancer_id);
             $this->bind("contato_dois", @$objUsuario->contato_dois);
             $this->bind("uf", @$objUsuario->uf);
+            $this->bind("data_alteracao", date("Y-m-d H:i:s"));
             $this->bind("cidade", @$objUsuario->cidade);
             // Recuperando o id do usuário cadastrado
             $this->executar();

@@ -145,7 +145,7 @@ class Usuario {
         if(empty($arrUsuarios)) throw new Exception("Nenhum Usuário Encontrado!");
         // Formatando o retorno
         foreach($arrUsuarios as &$arrUsuario){
-            $arrUsuario["id"] = "<a href='" . Constantes::$ULR_EDITAR_USUARIO.$arrUsuario["id"] . "'><i class='fa fa-edit'></i></a>";
+            $arrUsuario["id"] = "<a class='links' href='" . Constantes::$ULR_EDITAR_USUARIO.$arrUsuario["id"] . "'><i class='fa fa-edit'></i></a>";
         }
         return $arrUsuarios;
     }

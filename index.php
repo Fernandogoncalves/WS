@@ -79,7 +79,7 @@ function getExecucao($bolPost = false, $controller, $action, $parameter = null){
     $arrRetorno["bolRetorno"] = $bolRetorno;
     $arrRetorno["strMensagem"] = $strMensagem;
     // Gerando Log
-//     gerarLog($arrRsetorno, $parametros);
+    gerarLog($arrRetorno, $parametros);
     
     // Retornando 
     echo json_encode($arrRetorno);

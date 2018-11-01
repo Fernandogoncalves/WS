@@ -28,8 +28,13 @@ class Exame {
         return $this->objDaoexame->listarTiposExames();
     }
       
+    /**
+     * Método que irá realizar a validação e o cadastro dos exames do paciente
+     * 
+     * @throws Exception
+     * @return boolean
+     */
     public function post_cadastrarExame(){
-        $bolRetorno = false;
         // Criando o dao
         $this->objDaoexame = new daoExame();
         // Validando os dados postados
@@ -38,11 +43,50 @@ class Exame {
         $objExame = json_decode($_POST["dadosExame"]);  
         $objExame->usuario_id = (int) $_POST["usuario_id"];
         // Validando os dados postados
-        $this->validarCadastroExame($objExame);  
+        $this->validarCadastroExame($objExame); 
         // Cadastrando o exame
-        $bolCadastro = $this->objDaoExame->cadastrarExame($objExame);// cadastrando o exame na base
+        $bolCadastro = $this->objDaoexame->cadastrarExame($objExame);// cadastrando o exame na base
         if(!$bolCadastro) throw new Exception("Não foi possível cadastrar o exame!");
         return true;
+    }
+    
+    /**
+     * Método que irá realiza a confirmação de recebimento do exame do paciente
+     * 
+     * @throws Exception
+     * @return boolean
+     */
+    public function post_confirmarRecebimento(){
+        // Criando o dao
+        $this->objDaoexame = new daoExame();
+        // Validando os dados postados
+        if(empty($_POST["dadosExame"])) throw new Exception("Dados Não Informados!");
+        if(empty($_POST["intIdUsuario"])) throw new Exception("Usuário Não Informados!");
+        // Recuperando os dados do paciente
+        $objExame = json_decode($_POST["dadosExame"]);
+        $objExame->usuario_id = (int) $_POST["intIdUsuario"];
+        echo '<pre>';
+        print_r($objExame);
+        echo '</pre>';
+        die();
+        // Validando os dados postados
+        $this->validarConfirmacaoExame($objExame);
+        // Cadastrando o exame
+        $bolCadastro = $this->objDaoexame->confirmarRecebimento($objExame);// cadastrando o exame na base
+        if(!$bolCadastro) throw new Exception("Não foi possível cadastrar o exame!");
+        return true;
+    }
+    
+    /**
+     * Método que irá validar o recebimento do exame
+     * 
+     * @param stdClass $objExame
+     * @throws Exception
+     */
+    function validarConfirmacaoExame(stdClass $objExame){
+        // Validação dos dados de exame
+        if(empty($objExame->usuario_id))                                    throw new Exception("Usuário Não Informado!");
+        if(!Utilidades::validarData($objExame->data_recebimento))      throw new Exception("Data Recebimento Inválida!");
     }
     
     /**
@@ -101,7 +145,8 @@ class Exame {
         // Retornando a lista de exames do paciente
         return $arrExames;
     }
-
+    
+    
     public function get_filtrarExames(){
         // Criando o dao
         $this->objDaoexame = new daoExame();        
