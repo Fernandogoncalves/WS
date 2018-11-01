@@ -1,4 +1,5 @@
 <?php
+session_name('SESSAO_PHP');
 session_start();
 error_reporting(E_ALL);
 ini_set("session.cookie_lifetime","3600");

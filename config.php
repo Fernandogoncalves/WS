@@ -12,10 +12,10 @@
 [mysql]
 
 
-ipMysql = mysql-dev.redepos.com.br
+ipMysql = producao_imip.mysql.dbaas.com.br
 
-dbMysql = teste_banco
+dbMysql = dev_imip
 
-userMysql = alberto
+userMysql = dev_imip
 
-passMysql = alby
+passMysql = wESv6rHfAtxmH2
