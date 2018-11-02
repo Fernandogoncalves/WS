@@ -73,7 +73,8 @@ class daoExame extends Dao {
                         FROM exame
                         WHERE 
                             tipo_exame_id = :tipo_exame_id 
-                            AND data_exame >= NOW() - INTERVAL 120 DAY";
+                            AND data_exame >= NOW() - INTERVAL 120 DAY
+                            AND data_recebimento is not null";
             $this->prepare();
             // Realizando os bids para seguran�a
             $this->bind("tipo_exame_id", $intIdTipoExame);
@@ -146,12 +147,15 @@ class daoExame extends Dao {
             $this->iniciarTransacao();
             $this->sql ="UPDATE exame
                         SET data_recebimento = :data_recebimento
-                        WHERE usuario_id = :usuario_id ";
+                        WHERE usuario_id = :usuario_id
+                              AND
+                              id = :id";
             // Preparando a consulta
             $this->prepare();
             // Realizando os bids para segurança
             $this->bind("data_exame", $objExame->data_recebimento);
             $this->bind("usuario_id", $objExame->usuario_id);
+            $this->bind("id", $objExame->id);
             // Recuperando o id do exame cadastrado
             $this->executar();
             $this->comitarTransacao();
@@ -172,8 +176,26 @@ class daoExame extends Dao {
             // Realizando um cast para garantir a integridade
             $intIdUsuario = (int) $intIdUsuario;
             $this->sql ="SELECT
-                            *
+                            e.*,
+                            a.descricao as area,
+                            tp.descricao as tipo_exame,
+                            CASE
+                              WHEN data_recebimento IS NULL THEN 0
+                              ELSE 1
+                            END AS situacao,
+                            (
+                            SELECT
+                                ROUND(SUM(TIMESTAMPDIFF(DAY,data_exame,data_recebimento)) / COUNT(ID), 0)
+                             FROM 
+                                exame 
+                             WHERE 
+                                tipo_exame_id = e.tipo_exame_id 
+                                AND data_exame >= NOW() - INTERVAL 120 DAY
+                                AND data_recebimento is not null
+                           ) AS media
                          FROM exame e
+                         INNER JOIN area a on a.id = e.area_id
+                         INNER JOIN tipo_exame tp on tp.id = e.tipo_exame_id
                          WHERE
                             e.usuario_id = :usuario_id 
                          ORDER BY 
@@ -182,7 +204,7 @@ class daoExame extends Dao {
             $this->prepare();
             $this->bind("usuario_id", $intIdUsuario);
             $this->executar();
-            $arrExames = $this->buscarDoResultadoAssoc(true);
+            $arrExames = $this->buscarDoResultadoAssoc();
             if(empty($arrExames)) throw new Exception("Exames não foram encontrados!");
             // Retornando os exames do paciente
             return $arrExames;

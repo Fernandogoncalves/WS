@@ -62,13 +62,11 @@ class Exame {
         // Validando os dados postados
         if(empty($_POST["dadosExame"])) throw new Exception("Dados Não Informados!");
         if(empty($_POST["intIdUsuario"])) throw new Exception("Usuário Não Informados!");
+        if(empty($_POST["intIdExame"])) throw new Exception("Exame Não Informados!");
         // Recuperando os dados do paciente
         $objExame = json_decode($_POST["dadosExame"]);
         $objExame->usuario_id = (int) $_POST["intIdUsuario"];
-        echo '<pre>';
-        print_r($objExame);
-        echo '</pre>';
-        die();
+        $objExame->id = (int) $_POST["intIdExame"];
         // Validando os dados postados
         $this->validarConfirmacaoExame($objExame);
         // Cadastrando o exame
