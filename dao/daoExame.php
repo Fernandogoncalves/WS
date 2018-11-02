@@ -144,17 +144,16 @@ class daoExame extends Dao {
      */
     function confirmarRecebimento(stdClass &$objExame){
         try {
+            $objExame->data_recebimento = Utilidades::formatarDataPraBanco($objExame->data_recebimento);
             $this->iniciarTransacao();
             $this->sql ="UPDATE exame
                         SET data_recebimento = :data_recebimento
-                        WHERE usuario_id = :usuario_id
-                              AND
-                              id = :id";
+                        WHERE 
+                              id = :id ";
             // Preparando a consulta
             $this->prepare();
             // Realizando os bids para segurança
-            $this->bind("data_exame", $objExame->data_recebimento);
-            $this->bind("usuario_id", $objExame->usuario_id);
+            $this->bind("data_recebimento", $objExame->data_recebimento);
             $this->bind("id", $objExame->id);
             // Recuperando o id do exame cadastrado
             $this->executar();
@@ -162,6 +161,28 @@ class daoExame extends Dao {
             // Verificando se houve alterações
             return ($this->rowCount() > 0);
         } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
+    }
+    
+    /**
+     * Método que irá retornar o exame pelo id
+     * 
+     * @param unknown $intIdExame
+     * @return mixed
+     */
+    function getExamePorId($intIdExame){
+        try {
+            $intIdExame = (int) $intIdExame;
+            // Filtrando todos os cancers
+            $this->sql ="SELECT
+                          *
+                        FROM exame
+                        WHERE id = :id";
+            $this->prepare();
+            $this->bind("id", $intIdExame);
+            $this->executar();
+            // Retornando a lista de cancer
+            return $this->buscarDoResultadoAssoc(true);
+        } catch (Exception $ex) { }
     }
 
     /**
@@ -206,6 +227,15 @@ class daoExame extends Dao {
             $this->executar();
             $arrExames = $this->buscarDoResultadoAssoc();
             if(empty($arrExames)) throw new Exception("Exames não foram encontrados!");
+            // Para cada exame 
+            foreach($arrExames as $intChave => $exames){
+                // Formatando as fatas
+                $arrExames[$intChave]["data_exame"] = Utilidades::formatarDataPraBr($exames["data_exame"]);
+                $arrExames[$intChave]["data_previsao"] = Utilidades::formatarDataPraBr($exames["data_previsao"]);
+                // Se a data do recebimento não for vazia
+                if(!empty($exames["data_recebimento"]))
+                    $arrExames[$intChave]["data_recebimento"] = Utilidades::formatarDataPraBr($exames["data_recebimento"]);
+            }
             // Retornando os exames do paciente
             return $arrExames;
         } catch (Exception $ex) { }

@@ -67,6 +67,8 @@ class Exame {
         $objExame = json_decode($_POST["dadosExame"]);
         $objExame->usuario_id = (int) $_POST["intIdUsuario"];
         $objExame->id = (int) $_POST["intIdExame"];
+        $objExameBanco = (object) $this->objDaoexame->getExamePorId($objExame->id);
+        $objExame->data_exame = $objExameBanco->data_exame;
         // Validando os dados postados
         $this->validarConfirmacaoExame($objExame);
         // Cadastrando o exame
@@ -83,8 +85,11 @@ class Exame {
      */
     function validarConfirmacaoExame(stdClass $objExame){
         // Validação dos dados de exame
-        if(empty($objExame->usuario_id))                                    throw new Exception("Usuário Não Informado!");
+        if(empty($objExame->usuario_id))                               throw new Exception("Usuário Não Informado!");
         if(!Utilidades::validarData($objExame->data_recebimento))      throw new Exception("Data Recebimento Inválida!");
+        if(!Utilidades::diffData($objExame->data_exame, Utilidades::formatarDataPraBanco($objExame->data_recebimento)))         throw new Exception("Data Do Recebimento Tem que Ser Menor que a Coleta!");
+        
+        
     }
     
     /**
@@ -103,6 +108,10 @@ class Exame {
       
         if(!Utilidades::validarData($objExame->data_exame))       throw new Exception("Data da Realização do Exame Inválida!");
         if(!Utilidades::validarData($objExame->data_previsao))    throw new Exception("Data da Previsão do Exame Inválida!");
+        // Validando as datas
+        if(!Utilidades::diffData(Utilidades::formatarDataPraBanco($objExame->data_exame), 
+            Utilidades::formatarDataPraBanco($objExame->data_previsao)))         
+                throw new Exception("Data de Coleta Tem que Ser Menor que a Previsão!");
     } 
     
     public function get_previsaoPorTipoExame(){

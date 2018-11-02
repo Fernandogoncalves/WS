@@ -144,4 +144,10 @@ class Utilidades {
         $date = DateTime::createFromFormat($strFormt, $strData);
         return $date->format('d/m/Y');
     }
+    
+    static function diffData($strDataInicio, $strDataFim){
+        $datetime1 = new DateTime($strDataInicio);
+        $datetime2 = new DateTime($strDataFim);
+        return ($datetime1 <= $datetime2);
+    }
 }
