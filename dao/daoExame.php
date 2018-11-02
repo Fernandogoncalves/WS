@@ -249,7 +249,8 @@ class daoExame extends Dao {
      * @return mixed
      */
     function filtrarExames(array $arrDados){
-//         if(isset($arrDados["pep"]){
+        //filtra os exames de um determinado pep
+        if(isset($arrDados["pep"]){
             try{
                 $this->sql ="SELECT
                                 *
@@ -275,6 +276,35 @@ class daoExame extends Dao {
                 return $arrExames;
                 }
                 catch (Exception $ex) { }
-            
+            }else{
+                //filtra os exames por área e/ou tipo
+                try{
+                    $this->sql ="SELECT
+                                    *
+                                FROM exame                                
+                                WHERE
+                                ";
+                    if(isset($arrDados["area_id"]) && !empty($arrDados["area_id"]))
+                    $this->sql .= " area_id = :area_id";
+                
+                    if(isset($arrDados["tipo_exame_id"]) && !empty($arrDados["tipo_exame_id"])){
+                        if(isset($arrDados["area_id"]) && !empty($arrDados["area_id"]))){
+                            $this->sql .= " AND tipo_exame_id  = :tipo_exame_id ";
+                        }else{
+                            $this->sql .= " tipo_exame_id  = :tipo_exame_id ";
+                        }
+                    }                   
+                    $this->prepare();
+                    $this->bind("numero_pep", $arrDados["pep"]);
+                    $this->bind("area_id", $arrDados["area_id"]);
+                    $this->bind("tipo_exame_id", $arrDados["tipo_exame_id"]);
+                    $this->executar();
+                    $arrExames = $this->buscarDoResultadoAssoc(true);
+                    if(empty($arrExames)) throw new Exception("Exames não foram encontrados!");
+                    // Retornando os exames filtrados
+                    return $arrExames;
+                    }
+                    catch (Exception $ex) { }
+            }
     } 
 }

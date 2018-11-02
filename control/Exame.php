@@ -159,12 +159,12 @@ class Exame {
         $this->objDaoexame = new daoExame();        
          // Validando os filtros
          if(empty($_POST["filtroBusca"])) throw new Exception("Dados Não Informados!");
-         // Recuperando os dados do paciente
+         // Recuperando os filtros
         $objFiltro = json_decode($_POST["filtroBusca"]);
-        // Cadastrando o paciente
-        $arrExames = $this->objDaoexame->filtrarExames((array) $objFiltro);// cadastrando o paciente na base
+        // Buscando os exames com os filtros recuperados
+        $arrExames = $this->objDaoexame->filtrarExames((array) $objFiltro);
         if(empty($arrExames)) throw new Exception("Nenhum Exame Encontrado!");
         // Retornando a lista de exames filtrados
         return $arrExames;
-    }
+}
 }
