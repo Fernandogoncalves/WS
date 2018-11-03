@@ -137,9 +137,9 @@ class Usuario {
         $objFiltro = json_decode($_POST["filtroBusca"]);
         // Validações
         if(!isset($objFiltro->perfil_id) || empty($objFiltro->perfil_id)) throw new Exception("Perfil é Obrigatório");
-        if($objFiltro->perfil_id == 1 && (isset($objFiltro->cpf) && !Utilidades::validaCPF($objFiltro->cpf))) throw new Exception("CPF invalido!");
+        if($objFiltro->perfil_id == 1 && (isset($objFiltro->cpf) && !empty($objFiltro->cpf) && !Utilidades::validaCPF($objFiltro->cpf))) throw new Exception("CPF invalido!");
         // Formatando
-        if(isset($objFiltro->cpf)) $objFiltro->cpf = preg_replace("/[^0-9]/", "", $objFiltro->cpf);
+        if(isset($objFiltro->cpf) && !empty($objFiltro->cpf)) $objFiltro->cpf = preg_replace("/[^0-9]/", "", $objFiltro->cpf);
         // Cadastrando o paciente
         $arrUsuarios = $this->objDaoUsuario->pesquisarUsuarios((array) $objFiltro);// cadastrando o paciente na base
         if(empty($arrUsuarios)) throw new Exception("Nenhum Usuário Encontrado!");
@@ -233,6 +233,8 @@ class Usuario {
         $objPaciente = json_decode($_POST["dadosUsuario"]);
         $objPaciente->onesignal = "";// Recuperando o id do onesignal
         $objPaciente->cpf = $objPaciente->login;
+        // Formatando o cpf
+        $objPaciente->cpf = preg_replace("/[^0-9]/", "", $objPaciente->cpf);// Removendo formatação do cpf
         // Validando os dados postados
         if($objPaciente->perfil_id == 1)
             $this->validarCadastroPaciente($objPaciente);
@@ -240,8 +242,7 @@ class Usuario {
             $this->validarCadastro($objPaciente);
             $objPaciente->cancer_id = 7;// Setando o cancer para nenhum
         }
-        // Formatando o cpf
-        $objPaciente->cpf = preg_replace("/[^0-9]/", "", $objPaciente->cpf);// Removendo formatação do cpf
+        // Formatando a data de nascimento
         $objPaciente->data_nascimento = Utilidades::formatarDataPraBanco($objPaciente->data_nascimento);// Formatando a data para o formato de banco de dados
         // Cadastrando o paciente
         $bolCadastro = $this->objDaoUsuario->cadastrarUsuario($objPaciente);// cadastrando o paciente na base
@@ -394,6 +395,11 @@ class Usuario {
         if(!Utilidades::validaCPF($objUsuario->cpf)) throw new Exception("CPF invalido!");
         if(!Utilidades::validarEmail($objUsuario->email)) throw new Exception("E-mail invalido!");
         if(empty($objUsuario->nome)) throw new Exception("Nome Não Informado!");
+        
+        // Validando a data de nascimeento
+        if(!Utilidades::diffData(Utilidades::formatarDataPraBanco($objUsuario->data_nascimento), date("Y-m-d")))    
+            throw new Exception("Data Nascimento Manior que a data atual!");
+        
         // Caso não seja editar
         if(!$bolEdit){
             if(empty($objUsuario->senha)) throw new Exception("Senha Não Informada!");

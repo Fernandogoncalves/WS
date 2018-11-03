@@ -219,9 +219,13 @@ class daoExame extends Dao {
                          INNER JOIN tipo_exame tp on tp.id = e.tipo_exame_id
                          WHERE
                             e.usuario_id = :usuario_id 
-                         ORDER BY 
-                            e.data_previsao DESC,
-                            e.data_exame DESC ";
+                         ORDER BY
+                            (CASE
+                              WHEN data_recebimento IS NULL THEN 0
+                              ELSE 1
+                            END) ASC,
+                            e.data_exame ASC,
+                            e.data_previsao DESC ";
             $this->prepare();
             $this->bind("usuario_id", $intIdUsuario);
             $this->executar();
@@ -250,61 +254,61 @@ class daoExame extends Dao {
      */
     function filtrarExames(array $arrDados){
         //filtra os exames de um determinado pep
-        if(isset($arrDados["pep"]){
-            try{
-                $this->sql ="SELECT
-                                *
-                            FROM exame e
-                            INNER JOIN usuario u
-                            ON
-                            e.usuario_id = u.id
-                            WHERE
-                            u.numero_pep= :numero_pep";
-                if(isset($arrDados["area_id"]) && !empty($arrDados["area_id"]))
+        try{
+            $this->sql ="SELECT
+                            e.*,
+                            u.nome,
+                            TIMESTAMPDIFF(DAY,data_exame,
+                            (CASE
+                              WHEN data_recebimento IS NOT NULL THEN data_recebimento
+                              ELSE NOW()
+                            END)
+                            ) dias_atraso
+                        FROM exame e
+                        INNER JOIN usuario u ON e.usuario_id = u.id
+                        WHERE
+                             1 = 1  ";
+            
+            /***** FILTROS CASO INFORMADOS ******/
+            if(isset($arrDados["area_id"]) && !empty($arrDados["area_id"]))
                 $this->sql .= " AND e.area_id = :area_id";
             
-                if(isset($arrDados["tipo_exame_id"]) && !empty($arrDados["tipo_exame_id"]))
-                $this->sql .= " AND e.tipo_exame_id  = :tipo_exame_id ";
-                $this->prepare();
-                $this->bind("numero_pep", $arrDados["pep"]);
-                $this->bind("area_id", $arrDados["area_id"]);
-                $this->bind("tipo_exame_id", $arrDados["tipo_exame_id"]);
-                $this->executar();
-                $arrExames = $this->buscarDoResultadoAssoc(true);
-                if(empty($arrExames)) throw new Exception("Exames não foram encontrados!");
-                // Retornando os exames filtrados
-                return $arrExames;
-                }
-                catch (Exception $ex) { }
-            }else{
-                //filtra os exames por área e/ou tipo
-                try{
-                    $this->sql ="SELECT
-                                    *
-                                FROM exame                                
-                                WHERE
-                                ";
-                    if(isset($arrDados["area_id"]) && !empty($arrDados["area_id"]))
-                    $this->sql .= " area_id = :area_id";
-                
-                    if(isset($arrDados["tipo_exame_id"]) && !empty($arrDados["tipo_exame_id"])){
-                        if(isset($arrDados["area_id"]) && !empty($arrDados["area_id"]))){
-                            $this->sql .= " AND tipo_exame_id  = :tipo_exame_id ";
-                        }else{
-                            $this->sql .= " tipo_exame_id  = :tipo_exame_id ";
-                        }
-                    }                   
-                    $this->prepare();
-                    $this->bind("numero_pep", $arrDados["pep"]);
-                    $this->bind("area_id", $arrDados["area_id"]);
-                    $this->bind("tipo_exame_id", $arrDados["tipo_exame_id"]);
-                    $this->executar();
-                    $arrExames = $this->buscarDoResultadoAssoc(true);
-                    if(empty($arrExames)) throw new Exception("Exames não foram encontrados!");
-                    // Retornando os exames filtrados
-                    return $arrExames;
-                    }
-                    catch (Exception $ex) { }
+            if(isset($arrDados["situacao"]) && $arrDados["situacao"] != ""){
+                $strSituacao = ($arrDados["situacao"] == 0) ? " is null " : " is not null ";
+                $this->sql .= " AND data_recebimento {$strSituacao}";
             }
+            
+            if(isset($arrDados["tipo_exame_id"]) && !empty($arrDados["tipo_exame_id"]))
+                $this->sql .= " AND e.tipo_exame_id = :tipo_exame_id";
+            
+            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
+                $this->sql .= " AND u.numero_pep= :numero_pep";
+            
+            $this->sql .= "   
+                  ORDER BY
+                    TIMESTAMPDIFF(DAY,data_exame,
+                    (CASE
+                        WHEN data_recebimento IS NOT NULL THEN data_recebimento
+                        ELSE NOW()
+                        END)
+                    ) DESC";
+            // PREPARANDO A CONSULTA
+            $this->prepare();
+            /***** BIND NOS VALORES DOS FILTROS ******/
+            if(isset($arrDados["area_id"]) && !empty($arrDados["area_id"]))
+                $this->bind("area_id", $arrDados["area_id"]);
+            
+            if(isset($arrDados["tipo_exame_id"]) && !empty($arrDados["tipo_exame_id"]))
+                 $this->bind("tipo_exame_id", $arrDados["tipo_exame_id"]);
+        
+            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
+                 $this->bind("numero_pep", $arrDados["pep"]);
+            // EXECUTANDO A CONSULTA
+            $this->executar();
+            $arrExames = $this->buscarDoResultadoAssoc();
+            if(empty($arrExames)) throw new Exception("Exames não foram encontrados!");
+            // Retornando os exames filtrados
+            return $arrExames;
+        } catch (Exception $ex) { throw new Exception($ex->getMessage()); }
     } 
 }

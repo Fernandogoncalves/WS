@@ -9,6 +9,7 @@ class Constantes {
      * Constante da url do app de editar usuário
      * @var String
      */
-    static $ULR_EDITAR_USUARIO = "#/app/editar-usuario/";
+    static $ULR_EDITAR_USUARIO  = "#/app/editar-usuario/";
+    static $ULR_DETALHE_EXAME   = "#/app/detalhe-exame/";
     
 }

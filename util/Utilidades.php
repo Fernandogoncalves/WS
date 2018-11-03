@@ -145,6 +145,13 @@ class Utilidades {
         return $date->format('d/m/Y');
     }
     
+    /**
+     * Método que ira realizar a comparação entre as tadas
+     * 
+     * @param unknown $strDataInicio
+     * @param unknown $strDataFim
+     * @return boolean
+     */
     static function diffData($strDataInicio, $strDataFim){
         $datetime1 = new DateTime($strDataInicio);
         $datetime2 = new DateTime($strDataFim);

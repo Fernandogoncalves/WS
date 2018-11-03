@@ -154,7 +154,7 @@ class Exame {
     }
     
     
-    public function get_filtrarExames(){
+    public function post_filtrarExames(){
         // Criando o dao
         $this->objDaoexame = new daoExame();        
          // Validando os filtros
@@ -164,6 +164,14 @@ class Exame {
         // Buscando os exames com os filtros recuperados
         $arrExames = $this->objDaoexame->filtrarExames((array) $objFiltro);
         if(empty($arrExames)) throw new Exception("Nenhum Exame Encontrado!");
+        // formatando os exames
+        foreach($arrExames as $inChave => $arrExame){
+            $straAtrasado = ($arrExame["data_recebimento"] == null) ? "exame_atrasado" : "exame_entregue";
+            // Formatando o nome do paciente
+            $arrExame["nome"]           = "<a class='links link {$straAtrasado}' href='".Constantes::$ULR_DETALHE_EXAME."/".$arrExame["id"]."'>".$arrExame["nome"]."</a>";
+            $arrExame["dias_atraso"]    = "<a class='links link {$straAtrasado}' href='".Constantes::$ULR_DETALHE_EXAME."/".$arrExame["id"]."'>".$arrExame["dias_atraso"]."</a>";
+            $arrExames[$inChave] = $arrExame;
+        }
         // Retornando a lista de exames filtrados
         return $arrExames;
 }
