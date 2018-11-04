@@ -55,6 +55,50 @@ class daoExame extends Dao {
     }
     
     /**
+     * Método que irá listas o total de exames por área
+     * 
+     * @return mixed
+     */
+    function listarTotalExamePorArea(){
+        try {
+            $this->sql ="SELECT
+                          a.descricao,
+                          count(e.id) total
+                        FROM
+                          `exame` e
+                        INNER JOIN area a on a.id = e.area_id
+                        WHERE e.data_recebimento is null
+                        GROUP BY a.descricao";
+            $this->prepare();
+            $this->executar();
+            // Retornando a lista de cancer
+            return $this->buscarDoResultadoAssoc();
+        } catch (Exception $ex) { }
+    }
+    
+    /**
+     * Método que irá listar o total dos exames pelo tipo
+     * 
+     * @return mixed
+     */
+    function listarTotalExamePorTipoExame(){
+        try {
+            $this->sql ="SELECT
+                          te.descricao,
+                          count(e.id) total
+                        FROM
+                          `exame` e
+                        INNER JOIN tipo_exame te on te.id = e.tipo_exame_id
+                        WHERE e.data_recebimento is null
+                        GROUP BY te.descricao";
+            $this->prepare();
+            $this->executar();
+            // Retornando a lista de cancer
+            return $this->buscarDoResultadoAssoc();
+        } catch (Exception $ex) { }
+    }
+    
+    /**
      * Método que irá calcular a previsão de entrega para o tipo de exame
      * 
      * @param integer $intIdTipoExame
@@ -174,9 +218,28 @@ class daoExame extends Dao {
             $intIdExame = (int) $intIdExame;
             // Filtrando todos os cancers
             $this->sql ="SELECT
-                          *
-                        FROM exame
-                        WHERE id = :id";
+                        	e.*,
+                        	a.descricao as area,
+                        	tp.descricao as tipo_exame,
+                        	u.nome,
+                        	u.contato,
+                        	u.contato_dois,
+                        	u.numero_pep,
+                        	CASE
+                        	  WHEN data_recebimento IS NULL THEN 0
+                        	  ELSE 1
+                        	END AS situacao,
+                        	TIMESTAMPDIFF(DAY,data_exame,
+                        		(CASE
+                        		  WHEN data_recebimento IS NOT NULL THEN data_recebimento
+                        		  ELSE NOW()
+                        		END)
+                        	) dias_atraso
+                         FROM exame e
+                         INNER JOIN area a on a.id = e.area_id
+                         INNER JOIN tipo_exame tp on tp.id = e.tipo_exame_id
+                         INNER JOIN usuario u on u.id = e.usuario_id
+                         WHERE e.id = :id ";
             $this->prepare();
             $this->bind("id", $intIdExame);
             $this->executar();
@@ -225,7 +288,7 @@ class daoExame extends Dao {
                               ELSE 1
                             END) ASC,
                             e.data_exame ASC,
-                            e.data_previsao DESC ";
+                            e.data_previsao ASC ";
             $this->prepare();
             $this->bind("usuario_id", $intIdUsuario);
             $this->executar();

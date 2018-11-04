@@ -27,6 +27,44 @@ class Exame {
     
         return $this->objDaoexame->listarTiposExames();
     }
+    
+    /**
+     * Método que irá listar os totais exames por área
+     * 
+     * @return mixed
+     */
+    public function get_listarTotalExamePorArea(){
+        // Criando o dao
+        $this->objDaoexame = new daoExame();
+        // Recuperando o total
+        $arrDados = $this->objDaoexame->listarTotalExamePorArea();
+        $arrRetorno = array();
+        // Formatando o retorno
+        foreach($arrDados as $intChave=>$arrValor){
+            $arrRetorno[$intChave][] = $arrValor["descricao"];
+            $arrRetorno[$intChave][] = $arrValor["total"];
+        }
+        return $arrRetorno;
+    }
+    
+    /**
+     * Método que irá listar os totais de exames por tipo
+     * 
+     * @return mixed
+     */
+    public function get_listarTotalExamePorTipoExame(){
+        // Criando o dao
+        $this->objDaoexame = new daoExame();
+        // Recuperando os totais
+        $arrDados = $this->objDaoexame->listarTotalExamePorTipoExame();
+        $arrRetorno = array();
+        // Formatando o retorno
+        foreach($arrDados as $intChave=>$arrValor){
+            $arrRetorno[$intChave][] = $arrValor["descricao"];
+            $arrRetorno[$intChave][] = $arrValor["total"];
+        }
+        return $arrRetorno;
+    }
       
     /**
      * Método que irá realizar a validação e o cadastro dos exames do paciente
@@ -168,11 +206,35 @@ class Exame {
         foreach($arrExames as $inChave => $arrExame){
             $straAtrasado = ($arrExame["data_recebimento"] == null) ? "exame_atrasado" : "exame_entregue";
             // Formatando o nome do paciente
-            $arrExame["nome"]           = "<a class='links link {$straAtrasado}' href='".Constantes::$ULR_DETALHE_EXAME."/".$arrExame["id"]."'>".$arrExame["nome"]."</a>";
-            $arrExame["dias_atraso"]    = "<a class='links link {$straAtrasado}' href='".Constantes::$ULR_DETALHE_EXAME."/".$arrExame["id"]."'>".$arrExame["dias_atraso"]."</a>";
+            $arrExame["nome"]           = "<a class='links link {$straAtrasado}' href='".Constantes::$ULR_DETALHE_EXAME.$arrExame["id"]."'>".$arrExame["nome"]."</a>";
+            $arrExame["dias_atraso"]    = "<a class='links link {$straAtrasado}' href='".Constantes::$ULR_DETALHE_EXAME.$arrExame["id"]."'>".$arrExame["dias_atraso"]."</a>";
             $arrExames[$inChave] = $arrExame;
         }
         // Retornando a lista de exames filtrados
         return $arrExames;
-}
+    }
+    
+    /**
+     * Método que irá retornar o exame pelo id
+     *
+     * @throws Exception
+     * @return mixed
+     */
+    public function get_recuperarExamePorID(){
+        // Criando o dao
+        $this->objDaoexame = new daoExame();
+        // Validando
+        if(empty($_GET["intIdExame"])) throw new Exception("Exame Não Informados!");
+        $intIdExame = (int) $_GET["intIdExame"];
+        // Recuperando o exame da base
+        $objExame = (object) $this->objDaoexame->getExamePorId($intIdExame);
+        if(!$objExame) throw new Exception("Exame Não Encontrado!");
+        // Formatando as tadas
+        $objExame->data_exame = Utilidades::formatarDataPraBr($objExame->data_exame);
+        $objExame->data_previsao = Utilidades::formatarDataPraBr($objExame->data_previsao);
+        // Caso o exame esteja entregue
+        if($objExame->situacao ==1) $objExame->data_recebimento = Utilidades::formatarDataPraBr($objExame->data_recebimento);
+        
+        return $objExame;
+    }
 }
