@@ -398,7 +398,7 @@ class Usuario {
         
         // Validando a data de nascimeento
         if(!Utilidades::diffData(Utilidades::formatarDataPraBanco($objUsuario->data_nascimento), date("Y-m-d")))    
-            throw new Exception("Data Nascimento Manior que a data atual!");
+            throw new Exception("Data Nascimento Maior que a Data Atual!");
         
         // Caso não seja editar
         if(!$bolEdit){

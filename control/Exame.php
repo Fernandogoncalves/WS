@@ -123,6 +123,7 @@ class Exame {
      */
     function validarConfirmacaoExame(stdClass $objExame){
         // Validação dos dados de exame
+        if(!isset($objExame->data_recebimento))                        throw new Exception("Data Recebimento Não Informada!");
         if(empty($objExame->usuario_id))                               throw new Exception("Usuário Não Informado!");
         if(!Utilidades::validarData($objExame->data_recebimento))      throw new Exception("Data Recebimento Inválida!");
         if(!Utilidades::diffData($objExame->data_exame, Utilidades::formatarDataPraBanco($objExame->data_recebimento)))         throw new Exception("Data Do Recebimento Tem que Ser Menor que a Coleta!");
@@ -145,13 +146,27 @@ class Exame {
         if(empty($objExame->area_id))           throw new Exception("Área Não Informada!");
       
         if(!Utilidades::validarData($objExame->data_exame))       throw new Exception("Data da Realização do Exame Inválida!");
-        if(!Utilidades::validarData($objExame->data_previsao))    throw new Exception("Data da Previsão do Exame Inválida!");
+        if(!Utilidades::validarData($objExame->data_previsao))    throw new Exception("Data de Entrega Resultado Inválida!");
         // Validando as datas
         if(!Utilidades::diffData(Utilidades::formatarDataPraBanco($objExame->data_exame), 
             Utilidades::formatarDataPraBanco($objExame->data_previsao)))         
-                throw new Exception("Data de Coleta Tem que Ser Menor que a Previsão!");
+                throw new Exception("Data de Coleta Tem que Ser Menor que a Data de Entrega Resultado!");
+            
+        if(!Utilidades::diffData(Utilidades::formatarDataPraBanco($objExame->data_exame),
+            date("Y-m-d")))
+            throw new Exception("Data de Coleta Tem que Ser Menor ou igual a data de hoje!");
+            
+        if(!Utilidades::diffData(date("Y-m-d"),
+            Utilidades::formatarDataPraBanco($objExame->data_previsao)))
+            throw new Exception("Data de Entrega Resultado Tem que Ser Maior ou igual a data de hoje!");
     } 
     
+    /**
+     * Método que irá verificar a previsão de entrega para a área e o tipo de exame
+     * 
+     * @throws Exception
+     * @return mixed
+     */
     public function get_previsaoPorTipoExame(){
         // Criando o dao
         $this->objDaoexame = new daoExame();

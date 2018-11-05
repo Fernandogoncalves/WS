@@ -203,7 +203,7 @@ class daoUsuario extends Dao {
             if(isset($arrDados["cpf"]) && !empty($arrDados["cpf"]))
                 $this->sql .= " AND login = :cpf";
             
-            if(isset($arrDados["situacao"]) && !empty($arrDados["situacao"]))
+            if(isset($arrDados["situacao"]) && $arrDados["situacao"] != "")
                 $this->sql .= " AND ativo = :situacao";
             
             if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
@@ -215,9 +215,9 @@ class daoUsuario extends Dao {
             if(isset($arrDados["cpf"]) && !empty($arrDados["cpf"]))
                 $this->bind("cpf", $arrDados["cpf"]);
             
-            if(isset($arrDados["situacao"]) && !empty($arrDados["situacao"]))
+            if(isset($arrDados["situacao"]) && $arrDados["situacao"] != "")
                 $this->bind("situacao", $arrDados["situacao"]);
-            
+                
             if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
                 $this->bind("pep", $arrDados["pep"]);
             $this->executar();
