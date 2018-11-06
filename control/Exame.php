@@ -154,11 +154,11 @@ class Exame {
             
         if(!Utilidades::diffData(Utilidades::formatarDataPraBanco($objExame->data_exame),
             date("Y-m-d")))
-            throw new Exception("Data de Coleta Tem que Ser Menor ou igual a data de hoje!");
+            throw new Exception("Data de Coleta Tem que Ser Menor ou Igual a Data de Hoje!");
             
         if(!Utilidades::diffData(date("Y-m-d"),
             Utilidades::formatarDataPraBanco($objExame->data_previsao)))
-            throw new Exception("Data de Entrega Resultado Tem que Ser Maior ou igual a data de hoje!");
+            throw new Exception("Data de Entrega Resultado Tem que Ser Maior ou Igual a Data de Hoje!");
     } 
     
     /**
