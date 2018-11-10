@@ -92,8 +92,8 @@ class Utilidades {
     static function enviarNotificacao(array $arrDados){
         // informações padrões
         $arrCampos = array(
-            "small_icon" => "http://smtp.curapelanatureza.com.br/ws/logo.png",
-            "ic_stat_onesignal_default" => "http://smtp.curapelanatureza.com.br/ws/logo.png",
+            "small_icon" => "http://conexaovidaimip.com.br/logo.png",
+            "ic_stat_onesignal_default" => "http://conexaovidaimip.com.br/logo.png",
             'app_id' => "08582d2d-8cb3-4ca3-9c3d-b86be7ec5e8b",
             'data' => array("foo" => "bar")
         );

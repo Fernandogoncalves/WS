@@ -203,14 +203,16 @@ class Usuario {
         foreach($arrIDsOnesinal as $arrValor){
             $arrIds[] = $arrValor["codigo_onesignal"];
         }
-        $objAcao = new stdClass();
-        $objAcao->acao = Constantes::$ULR_EDITAR_USUARIO.$objPaciente->id;
         // Criando os dados de notificação
         $arrDadosNotificacao = array(
             'include_player_ids' => $arrIds,
             "headings" => array("en" => "Cadastro de Paciente Pendente"),
             'contents' => array("en" => "Paciente com o nº do PEP: " . $objPaciente->pep),
-            'data' => $objAcao
+            'data' => array(
+                                "foo"=>"bar",
+                                "acao"=>Constantes::$ULR_EDITAR_USUARIO.$objPaciente->id
+                            ),
+            "app_url" =>Constantes::$ULR_EDITAR_USUARIO.$objPaciente->id
         );
         // Enviando a notificação
         $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
