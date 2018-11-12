@@ -115,12 +115,11 @@ class Notificacao {
      * @throws Exception
      * @return mixed
      */
-    public function get_listarNotificacoesDoUsuarioPorId(){
+    public function get_notificacoesDoUsuarioPorId(){
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
         if(empty($_GET["intIdUsuario"])) throw new Exception("Id Não Informado!");
-        // Recuperando os dados do paciente
         $intIdUsuario = (int) $_GET["intIdUsuario"];
         // Validações
         if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");

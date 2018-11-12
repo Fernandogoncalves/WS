@@ -241,8 +241,8 @@ class daoNotificacao extends Dao {
             $intIdUsuario = (int) $intIdUsuario;
             $this->sql ="SELECT
                           *
-                        FROM notificacao n
-                        JOIN usuario_notificacao un on
+                        FROM usuario_notificacao un
+                        JOIN notificacao n on
                               n.id = un.notificacao_id
                               and un.usuario_id = :usuario_id";
             $this->prepare();
