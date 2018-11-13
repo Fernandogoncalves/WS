@@ -131,6 +131,24 @@ class Notificacao {
     }
     
     /**
+     * Método que irá retornar os exames pelo id do paciente (usuário)
+     *
+     * @throws Exception
+     * @return mixed
+     */
+    public function post_notificacoesLidas(){
+        // Criando o dao
+        $this->objDaoNotificacao = new daoNotificacao();
+        // Validando os dados postados
+        if(empty($_GET["intIdUsuario"])) throw new Exception("Id Não Informado!");
+        $intIdUsuario = (int) $_GET["intIdUsuario"];
+        // Validações
+        if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");
+        $this->objDaoNotificacao->notificacoesLidas($intIdUsuario);
+        return true;
+    }
+    
+    /**
      * Método que irá listar as notificaçõe da base
      * 
      * @throws Exception

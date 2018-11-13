@@ -244,7 +244,8 @@ class daoNotificacao extends Dao {
                         FROM usuario_notificacao un
                         JOIN notificacao n on
                               n.id = un.notificacao_id
-                              and un.usuario_id = :usuario_id";
+                              and un.usuario_id = :usuario_id
+                        ORDER BY notificacao_id DESC";
             $this->prepare();
             $this->bind("usuario_id", $intIdUsuario);
             $this->executar();
@@ -257,6 +258,27 @@ class daoNotificacao extends Dao {
             }
             // Retornando as notificações do usuário
             return $arrNotificacoes;
+        } catch (Exception $ex) { }
+    }
+    
+    /**
+     * Método que irá registrar as mensagens do usuários que foram lidas
+     * 
+     * @param int $intIdUsuario
+     * @throws Exception
+     * @return mixed
+     */
+    function notificacoesLidas($intIdUsuario){
+        try {
+            // Realizando um cast para garantir a integridade
+            $intIdUsuario = (int) $intIdUsuario;
+            $this->sql ="UPDATE usuario_notificacao
+                        SET visualizou = 1, data_leitura = :data
+                        WHERE usuario_id = :usuario_id AND visualizou = 0";
+            $this->prepare();
+            $this->bind("usuario_id", $intIdUsuario);
+            $this->bind("data", date("Y-m-d H:i:s"));
+            $this->executar();
         } catch (Exception $ex) { }
     }
 
