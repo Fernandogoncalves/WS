@@ -1,13 +1,13 @@
 <?php
 /**
- * Controlador Notificação
+ * Controlador Notificaï¿½ï¿½o
  *
  * @author Alberto Medeiros
  */
 class Notificacao {
     
     /**
-     * Irá conter o objeto  daoNotificacao
+     * Irï¿½ conter o objeto  daoNotificacao
      *
      * @var daoNotificacao
      */
@@ -36,7 +36,7 @@ class Notificacao {
     }
     
     /**
-     * Método que irá retornar o total de usuários do filtro 
+     * Mï¿½todo que irï¿½ retornar o total de usuï¿½rios do filtro 
      * 
      * @throws Exception
      * @return mixed
@@ -45,19 +45,19 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
-        if(empty($_POST["dadosNotificacao"])) throw new Exception("Dados Não Informados!");
-        // Recuperando os dados da notificação
+        if(empty($_POST["dadosNotificacao"])) throw new Exception("Dados Nï¿½o Informados!");
+        // Recuperando os dados da notificaï¿½ï¿½o
         $objNotificacao = json_decode($_POST["dadosNotificacao"]);
         // Validando os dados postados
         $this->validarCadastro($objNotificacao);
-        // Recuperando o usuários que serão enviados
+        // Recuperando o usuï¿½rios que serï¿½o enviados
         $arrTotal = $this->objDaoNotificacao->getUsuariosEnviosFiltro((array) $objNotificacao, true);
-        // Retornando o total de usuários
+        // Retornando o total de usuï¿½rios
         return $arrTotal;
     }
     
     /**
-     * Método que irá realizar a validação e o cadastro dos da notificação
+     * Mï¿½todo que irï¿½ realizar a validaï¿½ï¿½o e o cadastro das notificaÃ§Ãµes
      * 
      * @throws Exception
      * @return boolean
@@ -66,51 +66,51 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
-        if(empty($_POST["dadosNotificacao"])) throw new Exception("Dados Não Informados!");
-        // Recuperando os dados da notificação
+        if(empty($_POST["dadosNotificacao"])) throw new Exception("Dados Nï¿½o Informados!");
+        // Recuperando os dados da notificaï¿½ï¿½o
         $objNotificacao = json_decode($_POST["dadosNotificacao"]);  
         // Validando os dados postados
         $this->validarCadastro($objNotificacao); 
-        // Recuperando o usuários que serão enviados 
+        // Recuperando o usuï¿½rios que serï¿½o enviados 
         $arrUsuarios = $this->objDaoNotificacao->getUsuariosEnviosFiltro((array) $objNotificacao, false);
         // Formatando o filtro que foi usado
         $objNotificacao->filtro = json_encode($objNotificacao);
-        // // cadastrando de notificação na base
+        // // cadastrando de notificaï¿½ï¿½o na base
         $bolCadastro = $this->objDaoNotificacao->cadastrarNotificacao($objNotificacao, $arrUsuarios);
-        if(!$bolCadastro) throw new Exception("Não foi possível cadastrar a notificação!");
+        if(!$bolCadastro) throw new Exception("Nï¿½o foi possï¿½vel cadastrar a notificaï¿½ï¿½o!");
         // Ids Usuario
         $arrIds = array();
         // Formatando os ids para envio em massa
         foreach($arrUsuarios as $arrValor){
             $arrIds[] = $arrValor["codigo_onesignal"];
         }
-        // Criando os dados de notificação
+        // Criando os dados de notificaï¿½ï¿½o
         $arrDadosNotificacao = array(
             'include_player_ids' => $arrIds,
             "headings" => array("en" => $objNotificacao->titulo),
             'contents' => array("en" => $objNotificacao->corpo)
         );
-        // Enviando a notificação
+        // Enviando a notificaï¿½ï¿½o
         $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
         // Retornando sucesso
         return true;
     }
     
     /**
-     * Método que irá validar os dados de cadastro do Exame
+     * Mï¿½todo que irï¿½ validar os dados de cadastro do Exame
      * 
      * @param Object $objExame
      * @throws Exception
      */
     function validarCadastro(stdClass $objNotificacao){
-        // Validação dos dados de exame
-        if(empty($objNotificacao->titulo))      throw new Exception("Título da notificação não informado!");
-        if(empty($objNotificacao->corpo))       throw new Exception("Corpo da notificação não informado!"); 
-        if(strlen($objNotificacao->corpo) > 144)throw new Exception("Corpo da notificação não informado!");
+        // Validaï¿½ï¿½o dos dados de exame
+        if(empty($objNotificacao->titulo))      throw new Exception("Tï¿½tulo da notificaï¿½ï¿½o nï¿½o informado!");
+        if(empty($objNotificacao->corpo))       throw new Exception("Corpo da notificaï¿½ï¿½o nï¿½o informado!"); 
+        if(strlen($objNotificacao->corpo) > 144)throw new Exception("Corpo da notificaï¿½ï¿½o nï¿½o informado!");
     } 
     
     /**
-     * Método que irá retornar os exames pelo id do paciente (usuário)
+     * Mï¿½todo que irï¿½ retornar os exames pelo id do paciente (usuï¿½rio)
      * 
      * @throws Exception
      * @return mixed
@@ -119,19 +119,19 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
-        if(empty($_GET["intIdUsuario"])) throw new Exception("Id Não Informado!");
+        if(empty($_GET["intIdUsuario"])) throw new Exception("Id Nï¿½o Informado!");
         $intIdUsuario = (int) $_GET["intIdUsuario"];
-        // Validações
-        if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");
+        // Validaï¿½ï¿½es
+        if($intIdUsuario == 0) throw new Exception("Usuï¿½rio Invï¿½lido!");
         // Listando os exames do paciente
         $arrExames = $this->objDaoNotificacao->listarNotificacoesDoPaciente($intIdUsuario);
-        if(empty($arrExames)) throw new Exception("Exames não foram Encontrados!");        
+        if(empty($arrExames)) throw new Exception("Exames nï¿½o foram Encontrados!");        
         // Retornando a lista de exames do paciente
         return $arrExames;
     }
     
     /**
-     * Método que irá retornar os exames pelo id do paciente (usuário)
+     * Mï¿½todo que irï¿½ retornar os exames pelo id do paciente (usuï¿½rio)
      *
      * @throws Exception
      * @return mixed
@@ -140,16 +140,16 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
-        if(empty($_GET["intIdUsuario"])) throw new Exception("Id Não Informado!");
+        if(empty($_GET["intIdUsuario"])) throw new Exception("Id Nï¿½o Informado!");
         $intIdUsuario = (int) $_GET["intIdUsuario"];
-        // Validações
-        if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");
+        // Validaï¿½ï¿½es
+        if($intIdUsuario == 0) throw new Exception("Usuï¿½rio Invï¿½lido!");
         $this->objDaoNotificacao->notificacoesLidas($intIdUsuario);
         return true;
     }
     
     /**
-     * Método que irá listar as notificaçõe da base
+     * Mï¿½todo que irï¿½ listar as notificaï¿½ï¿½e da base
      * 
      * @throws Exception
      */
@@ -157,7 +157,7 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();        
          // Validando os filtros
-         if(empty($_POST["filtroBusca"])) throw new Exception("Dados Não Informados!");
+         if(empty($_POST["filtroBusca"])) throw new Exception("Dados Nï¿½o Informados!");
          // Recuperando os filtros
         $arrFiltro = json_decode($_POST["filtroBusca"]);
         // Buscando os exames com os filtros recuperados
@@ -176,7 +176,7 @@ class Notificacao {
     }
     
     /**
-     * Método que irá retornar o exame pelo id
+     * Mï¿½todo que irï¿½ retornar o exame pelo id
      *
      * @throws Exception
      * @return mixed
@@ -185,14 +185,14 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando
-        if(empty($_GET["intIdNotificacao"])) throw new Exception("Notificação Não Informados!");
+        if(empty($_GET["intIdNotificacao"])) throw new Exception("Notificaï¿½ï¿½o Nï¿½o Informados!");
         $intIdNotificacao = (int) $_GET["intIdNotificacao"];
-        // Recuperando o Notificação da base
+        // Recuperando o Notificaï¿½ï¿½o da base
         $objNotificacao = (object) $this->objDaoNotificacao->getExamePorId($intIdNotificacao);
-        if(!$objNotificacao) throw new Exception("Exame Não Encontrado!");
+        if(!$objNotificacao) throw new Exception("Exame Nï¿½o Encontrado!");
         // Formatando as datas
         $objNotificacao->data_envio = Utilidades::formatarDataPraBr($objNotificacao->data_envio);
-        // Retornando a notificação
+        // Retornando a notificaï¿½ï¿½o
         return $objNotificacao;
     }
     

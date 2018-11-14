@@ -1,12 +1,12 @@
 <?php
 /**
- * Dao Padrão dos exames
+ * Dao Padrão das notificações
  */
 require_once(__DIR__ . '../../control/Notificacao.php');
 require_once(__DIR__ . '/dao.php');
 
 /**
- * Description of daoExame
+ * Description of daoNotificacao
  *
  * @author Régis Perez
  */
@@ -98,14 +98,14 @@ class daoNotificacao extends Dao {
                         )";
             // Preparando a consulta
             $this->prepare();
-            // Realizando os bids para segurança
+            // Realizando os binds para segurança
             $this->bind("data_previsao", Utilidades::formatarDataPraBanco($objNotificacao->data_envio));
             $this->bind("titulo", $objNotificacao->titulo);
             $this->bind("mensagem", $objNotificacao->mensagem);
             $this->bind("filtro", $objNotificacao->filtro);  
-            // Recuperando o id do exame cadastrado
+            // Recuperando o id da notificação cadastrada
             $this->executar();
-            // Recuperar id do exame
+            // Recuperar id da notificação
             $objNotificacao->id = $this->retornarUltimoIDInserido();
             // Para cada usuário
             foreach($arrUsuarios as $intChave => $arrUsuario){
@@ -121,7 +121,7 @@ class daoNotificacao extends Dao {
                         )";
                 // Preparando a consulta
                 $this->prepare();
-                // Recuperando o id do exame cadastrado
+                // Recuperando o id da notificação cadastrado
                 $this->executar();
             }
             // Comitando a transação
@@ -199,7 +199,7 @@ class daoNotificacao extends Dao {
             // EXECUTANDO A CONSULTA
             $this->executar();
             $arrUsuarios = $this->buscarDoResultadoAssoc();
-            if(empty($arrExames)) throw new Exception("Usuários não foram encontrados!");
+            if(empty($arrUsuarios)) throw new Exception("Usuários não foram encontrados!");
             // Retornando os exames filtrados
             return $arrUsuarios;
         } catch (Exception $ex) { throw new Exception($ex->getMessage()); }
@@ -213,7 +213,7 @@ class daoNotificacao extends Dao {
      */
     function getNotificacaoPorId($intIdN){
         try {
-            $intIdExame = (int) $intIdExame;
+            $intIdN = (int) $intIdN;
             // Filtrando todos os cancers
             $this->sql ="SELECT 
                             * 
@@ -221,7 +221,7 @@ class daoNotificacao extends Dao {
                             notificacao 
                         WHERE id = :id";
             $this->prepare();
-            $this->bind("id", $intIdExame);
+            $this->bind("id", $intIdN);
             $this->executar();
             // Retornando a lista de cancer
             return $this->buscarDoResultadoAssoc(true);
