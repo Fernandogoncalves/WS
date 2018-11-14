@@ -41,15 +41,13 @@ class Notificacao {
      * @throws Exception
      * @return mixed
      */
-    public function get_filtrarTotalUsuariosEnvio(){
+    public function post_filtrarTotalUsuariosEnvio(){
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
         if(empty($_POST["dadosNotificacao"])) throw new Exception("Dados N�o Informados!");
         // Recuperando os dados da notifica��o
         $objNotificacao = json_decode($_POST["dadosNotificacao"]);
-        // Validando os dados postados
-        $this->validarCadastro($objNotificacao);
         // Recuperando o usu�rios que ser�o enviados
         $arrTotal = $this->objDaoNotificacao->getUsuariosEnviosFiltro((array) $objNotificacao, true);
         // Retornando o total de usu�rios

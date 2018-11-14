@@ -162,7 +162,7 @@ class daoNotificacao extends Dao {
             if(isset($arrDados["perfil_id"]) && !empty($arrDados["perfil_id"]))
                 $this->sql .= " AND perfil_id = :perfil_id";
         
-            if(isset($arrDados["sexo"]) && $arrDados["sexo"] != "")
+            if(isset($arrDados["sexo"]) && !empty($arrDados["sexo"]))
                 $this->sql .= " AND sexo = :sexo";
         
             if(isset($arrDados["data_nascimento"]) && !empty($arrDados["data_nascimento"]))
