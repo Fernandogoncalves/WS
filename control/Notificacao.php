@@ -1,6 +1,6 @@
 <?php
 /**
- * Controlador Notifica��o
+ * Controlador Notificação
  *
  * @author Alberto Medeiros
  */
@@ -45,8 +45,8 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
-        if(empty($_POST["dadosNotificacao"])) throw new Exception("Dados N�o Informados!");
-        // Recuperando os dados da notifica��o
+        if(empty($_POST["dadosNotificacao"])) throw new Exception("Dados Não Informados!");
+        // Recuperando os dados da notificação
         $objNotificacao = json_decode($_POST["dadosNotificacao"]);
         // Recuperando o usu�rios que ser�o enviados
         $arrTotal = $this->objDaoNotificacao->getUsuariosEnviosFiltro((array) $objNotificacao, true);
@@ -64,8 +64,8 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
-        if(empty($_POST["dadosNotificacao"])) throw new Exception("Dados N�o Informados!");
-        // Recuperando os dados da notifica��o
+        if(empty($_POST["dadosNotificacao"])) throw new Exception("Dados Não Informados!");
+        // Recuperando os dados da notificação
         $objNotificacao = json_decode($_POST["dadosNotificacao"]);  
         // Validando os dados postados
         $this->validarCadastro($objNotificacao); 
@@ -73,25 +73,26 @@ class Notificacao {
         $arrUsuarios = $this->objDaoNotificacao->getUsuariosEnviosFiltro((array) $objNotificacao, false);
         // Formatando o filtro que foi usado
         $objNotificacao->filtro = json_encode($objNotificacao);
-        // // cadastrando de notifica��o na base
+        // // cadastrando de notificação na base
         $bolCadastro = $this->objDaoNotificacao->cadastrarNotificacao($objNotificacao, $arrUsuarios);
-        if(!$bolCadastro) throw new Exception("N�o foi poss�vel cadastrar a notifica��o!");
+        if(!$bolCadastro) throw new Exception("Não foi possível cadastrar a notificação!");
         // Ids Usuario
         $arrIds = array();
         // Formatando os ids para envio em massa
         foreach($arrUsuarios as $arrValor){
+            if(!empty($arrValor["codigo_onesignal"]) && $arrValor["codigo_onesignal"] != "" && $arrValor["codigo_onesignal"] != "undefined")
             $arrIds[] = $arrValor["codigo_onesignal"];
         }
-        // Criando os dados de notifica��o
+        // Criando os dados de notificação
         $arrDadosNotificacao = array(
             'include_player_ids' => $arrIds,
             "headings" => array("en" => $objNotificacao->titulo),
             'contents' => array("en" => $objNotificacao->corpo)
         );
-        // Enviando a notifica��o
+        // Enviando a notificação
         $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
         // Retornando sucesso
-        return true;
+        return $objRerotno;
     }
     
     /**
@@ -102,9 +103,9 @@ class Notificacao {
      */
     function validarCadastro(stdClass $objNotificacao){
         // Valida��o dos dados de exame
-        if(empty($objNotificacao->titulo))      throw new Exception("T�tulo da notifica��o n�o informado!");
-        if(empty($objNotificacao->corpo))       throw new Exception("Corpo da notifica��o n�o informado!"); 
-        if(strlen($objNotificacao->corpo) > 144)throw new Exception("Corpo da notifica��o n�o informado!");
+        if(empty($objNotificacao->titulo))      throw new Exception("Título da notificação não informado!");
+        if(empty($objNotificacao->corpo))       throw new Exception("Corpo da notificação não informado!"); 
+        if(strlen($objNotificacao->corpo) > 144)throw new Exception("Corpo da notificação não informado!");
     } 
     
     /**
@@ -117,13 +118,13 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
-        if(empty($_GET["intIdUsuario"])) throw new Exception("Id N�o Informado!");
+        if(empty($_GET["intIdUsuario"])) throw new Exception("Id Não Informado!");
         $intIdUsuario = (int) $_GET["intIdUsuario"];
         // Valida��es
-        if($intIdUsuario == 0) throw new Exception("Usu�rio Inv�lido!");
+        if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");
         // Listando os exames do paciente
         $arrExames = $this->objDaoNotificacao->listarNotificacoesDoPaciente($intIdUsuario);
-        if(empty($arrExames)) throw new Exception("Exames n�o foram Encontrados!");        
+        if(empty($arrExames)) throw new Exception("Exames não foram Encontrados!");        
         // Retornando a lista de exames do paciente
         return $arrExames;
     }
@@ -138,16 +139,16 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando os dados postados
-        if(empty($_GET["intIdUsuario"])) throw new Exception("Id N�o Informado!");
+        if(empty($_GET["intIdUsuario"])) throw new Exception("Id Não Informado!");
         $intIdUsuario = (int) $_GET["intIdUsuario"];
         // Valida��es
-        if($intIdUsuario == 0) throw new Exception("Usu�rio Inv�lido!");
+        if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");
         $this->objDaoNotificacao->notificacoesLidas($intIdUsuario);
         return true;
     }
     
     /**
-     * M�todo que ir� listar as notifica��e da base
+     * Método que irá listar as notificações da base
      * 
      * @throws Exception
      */
@@ -155,22 +156,23 @@ class Notificacao {
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();        
          // Validando os filtros
-         if(empty($_POST["filtroBusca"])) throw new Exception("Dados N�o Informados!");
+         if(empty($_POST["filtroBusca"])) throw new Exception("Dados Não Informados!");
          // Recuperando os filtros
         $arrFiltro = json_decode($_POST["filtroBusca"]);
-        // Buscando os exames com os filtros recuperados
-        $arrExames = $this->objDaoNotificacao->filtrarNotificacoes((array) $arrFiltro);
-        if(empty($arrExames)) throw new Exception("Nenhum Exame Encontrado!");
-        // formatando os exames
-        foreach($arrExames as $inChave => $arrExame){
-            $straAtrasado = ($arrExame["data_recebimento"] == null) ? "exame_atrasado" : "exame_entregue";
-            // Formatando o nome do paciente
-            $arrExame["nome"]           = "<a class='links link {$straAtrasado}' href='".Constantes::$ULR_DETALHE_EXAME.$arrExame["id"]."'>".$arrExame["nome"]."</a>";
-            $arrExame["dias_atraso"]    = "<a class='links link {$straAtrasado}' href='".Constantes::$ULR_DETALHE_EXAME.$arrExame["id"]."'>".$arrExame["dias_atraso"]."</a>";
-            $arrExames[$inChave] = $arrExame;
+        // Buscando as notificações com os filtros recuperados
+        $arrNotificacoes = $this->objDaoNotificacao->filtrarNotificacoes((array) $arrFiltro);
+        if(empty($arrNotificacoes)) throw new Exception("Nenhuma Notificação Encontrada!");
+        // formatando as notificações
+        foreach($arrNotificacoes as $inChave => $arrNotificacao){
+            $arrNotificacao["filtro"] = (array) json_decode($arrNotificacao["filtro"]);
+            // Formatando o retorno
+            $arrNotificacao["titulo"]        = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".$arrNotificacao["titulo"]."</a>";
+            $arrNotificacao["data_envio"]    = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".Utilidades::formatarDataPraBr($arrNotificacao["data_envio"])."</a>";
+            $arrNotificacao["total"]         = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".$arrNotificacao["filtro"]["total"]."</a>";
+            $arrNotificacoes[$inChave] = $arrNotificacao;
         }
-        // Retornando a lista de exames filtrados
-        return $arrExames;
+        // Retornando a lista de noticações filtradas
+        return $arrNotificacoes;
     }
     
     /**
@@ -179,18 +181,42 @@ class Notificacao {
      * @throws Exception
      * @return mixed
      */
-    public function get_recuperarExamePorID(){
+    public function get_recuperarNotificacaoPorID(){
         // Criando o dao
         $this->objDaoNotificacao = new daoNotificacao();
         // Validando
-        if(empty($_GET["intIdNotificacao"])) throw new Exception("Notifica��o N�o Informados!");
+        if(empty($_GET["intIdNotificacao"])) throw new Exception("Notificação Não Informados!");
         $intIdNotificacao = (int) $_GET["intIdNotificacao"];
         // Recuperando o Notifica��o da base
-        $objNotificacao = (object) $this->objDaoNotificacao->getExamePorId($intIdNotificacao);
-        if(!$objNotificacao) throw new Exception("Exame N�o Encontrado!");
+        $objNotificacao = (object) $this->objDaoNotificacao->getNotificacaoPorId($intIdNotificacao);
+        if(!$objNotificacao) throw new Exception("Exame Não Encontrado!");
+        
+        $objNotificacao->filtro = json_decode($objNotificacao->filtro);
+        
+        if(isset($objNotificacao->filtro->perfil_id)){
+            $arrListaPerfil = $this->objDaoNotificacao->listaPerfil();
+            foreach($arrListaPerfil as $intChave => $arrValor){
+                if($arrValor["id"] == $objNotificacao->filtro->perfil_id)
+                    $objNotificacao->perfil = $arrValor["descricao"];
+            }
+        }
+        
+        if(isset($objNotificacao->filtro->cancer_id)){
+            $arrListaCancer = $this->objDaoNotificacao->listaCancer();
+            foreach($arrListaCancer as $intChave => $arrValor){
+                if($arrValor["id"] == $objNotificacao->filtro->cancer_id)
+                    $objNotificacao->cancer = $arrValor["descricao"];
+            }
+        }
+        
+        if(isset($objNotificacao->filtro->sexo)){
+            $objNotificacao->sexo = ($objNotificacao->filtro->sexo == 1) ? "Homem" : "Mulher";
+        }
+        
         // Formatando as datas
         $objNotificacao->data_envio = Utilidades::formatarDataPraBr($objNotificacao->data_envio);
-        // Retornando a notifica��o
+        
+        // Retornando a notificação
         return $objNotificacao;
     }
     

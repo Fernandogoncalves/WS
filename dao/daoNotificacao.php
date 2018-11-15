@@ -99,9 +99,9 @@ class daoNotificacao extends Dao {
             // Preparando a consulta
             $this->prepare();
             // Realizando os binds para segurança
-            $this->bind("data_previsao", Utilidades::formatarDataPraBanco($objNotificacao->data_envio));
+            $this->bind("data_envio", date("Y-m-d"));
             $this->bind("titulo", $objNotificacao->titulo);
-            $this->bind("mensagem", $objNotificacao->mensagem);
+            $this->bind("mensagem", $objNotificacao->corpo);
             $this->bind("filtro", $objNotificacao->filtro);  
             // Recuperando o id da notificação cadastrada
             $this->executar();
@@ -128,7 +128,7 @@ class daoNotificacao extends Dao {
             $this->comitarTransacao();
             // Verificando se houve alteraçõeses
             return ($this->rowCount() > 0);
-        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
+        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($this->sql . " - " . $ex->getMessage()); }
     }
     
     /**
@@ -295,23 +295,24 @@ class daoNotificacao extends Dao {
             $this->sql ="SELECT
                           *
                         FROM notificacao
-                             1 = 1  ";
+                        WHERE     1 = 1  ";
             
             /***** FILTROS CASO INFORMADOS ******/
             if(isset($arrDados["data_envio"]) && !empty($arrDados["data_envio"]))
                 $this->sql .= " AND data_envio = :data_envio";
             
             if(isset($arrDados["titulo"]) && !empty($arrDados["titulo"]))
-                $this->sql .= " AND titulo = :titulo";
+                $this->sql .= " AND titulo LIKE :titulo";
             
             // PREPARANDO A CONSULTA
             $this->prepare();
             /***** BIND NOS VALORES DOS FILTROS ******/
             if(isset($arrDados["data_envio"]) && !empty($arrDados["data_envio"]))
-                $this->bind("data_envio", Utilidades::formatarDataPraBanco($arrDados["area_id"]));
+                $this->bind("data_envio", Utilidades::formatarDataPraBanco($arrDados["data_envio"]));
             
             if(isset($arrDados["titulo"]) && !empty($arrDados["titulo"]))
-                 $this->bind("titulo", $arrDados["titulo"]);
+                 $this->bind("titulo", "%".$arrDados["titulo"]."%");
+            
             // EXECUTANDO A CONSULTA
             $this->executar();
             $arrNotificacoes = $this->buscarDoResultadoAssoc();
