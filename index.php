@@ -105,8 +105,4 @@ function gerarLog($arrRetorno, $parametros){
     $escreve = fwrite($fp, $strMensagem);
     // Fecha o arquivo
     fclose($fp);
-    // incluindo a classe de log
-//     include_once 'LogAcesso.php';
-//     $objLog = new LogAcesso();
-//     $objLog->logAcesso($strMensagem);
 }

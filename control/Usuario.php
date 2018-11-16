@@ -210,9 +210,9 @@ class Usuario {
             'contents' => array("en" => "Paciente com o nº do PEP: " . $objPaciente->pep),
             'data' => array(
                                 "foo"=>"bar",
-                                "acao"=>Constantes::$ULR_EDITAR_USUARIO.$objPaciente->id
-                            ),
-            "app_url" =>Constantes::$ULR_EDITAR_USUARIO.$objPaciente->id
+                                "acao"=>Constantes::$ULR_EDITAR_USUARIO_NOTIFICACAO,
+                                "parametros"=>array("usuarioId"=>$objPaciente->id)
+                            )
         );
         // Enviando a notificação
         $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);

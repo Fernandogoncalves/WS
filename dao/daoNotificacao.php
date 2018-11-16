@@ -165,18 +165,19 @@ class daoNotificacao extends Dao {
             if(isset($arrDados["sexo"]) && !empty($arrDados["sexo"]))
                 $this->sql .= " AND sexo = :sexo";
         
-            if(isset($arrDados["data_nascimento"]) && !empty($arrDados["data_nascimento"]))
-                $this->sql .= " AND data_nascimento = :data_nascimento";
+            if(isset($arrDados["idade"]) && !empty($arrDados["idade"]))
+                $this->sql .= " AND TIMESTAMPDIFF(YEAR,data_nascimento,NOW()) >= :idade";
     
             if(isset($arrDados["cidade"]) && !empty($arrDados["cidade"]))
                 $this->sql .= " AND cidade = :cidade";
             
-            if(isset($arrDados["numero_pep"]) && !empty($arrDados["numero_pep"]))
-                $this->sql .= " AND numero_pep = :numero_pep";
+            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
+                $this->sql .= " AND numero_pep = :pep";
             
-            if(isset($arrDados["perfil_id"]) && !empty($arrDados["perfil_id"]))
-                $this->sql .= " AND perfil_id = :perfil_id";
+            if(isset($arrDados["cancer_id"]) && !empty($arrDados["cancer_id"]))
+                $this->sql .= " AND cancer_id in ( :cancer_id ) ";
             // PREPARANDO A CONSULTA
+            
             $this->prepare();
             /***** BIND NOS VALORES DOS FILTROS ******/
             if(isset($arrDados["perfil_id"]) && !empty($arrDados["perfil_id"]))
@@ -185,20 +186,22 @@ class daoNotificacao extends Dao {
             if(isset($arrDados["sexo"]) && !empty($arrDados["sexo"]))
                 $this->bind("sexo", $arrDados["sexo"]);
             
-            if(isset($arrDados["data_nascimento"]) && !empty($arrDados["data_nascimento"]))
-                $this->bind("data_nascimento", $arrDados["data_nascimento"]);
+            if(isset($arrDados["idade"]) && !empty($arrDados["idade"]))
+                $this->bind("idade", $arrDados["idade"]);
             
             if(isset($arrDados["cidade"]) && !empty($arrDados["cidade"]))
                 $this->bind("cidade", $arrDados["cidade"]);
             
-            if(isset($arrDados["numero_pep"]) && !empty($arrDados["numero_pep"]))
-                $this->bind("numero_pep", $arrDados["numero_pep"]);
+            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
+                $this->bind("pep", $arrDados["pep"]);
             
-            if(isset($arrDados["perfil_id"]) && !empty($arrDados["perfil_id"]))
-                $this->bind("perfil_id", $arrDados["perfil_id"]);
+            if(isset($arrDados["cancer_id"]) && !empty($arrDados["cancer_id"]))
+                $this->bind("cancer_id", implode(",", $arrDados["cancer_id"]));
+            
             // EXECUTANDO A CONSULTA
             $this->executar();
             $arrUsuarios = $this->buscarDoResultadoAssoc();
+           
             if(empty($arrUsuarios)) throw new Exception("Usuários não foram encontrados!");
             // Retornando os exames filtrados
             return $arrUsuarios;
