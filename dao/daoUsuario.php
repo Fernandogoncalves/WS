@@ -1,6 +1,6 @@
 <?php
 /**
- * Dao Padrão dos usuários
+ * Dao Padrï¿½o dos usuï¿½rios
  */
 
 require_once(__DIR__ . '../../control/Usuario.php');
@@ -45,7 +45,7 @@ class daoUsuario extends Dao {
     }
 
     /**
-     * Método de login do usuário
+     * Mï¿½todo de login do usuï¿½rio
      * 
      * @param array $arrDados
      * @return array
@@ -82,7 +82,7 @@ class daoUsuario extends Dao {
                 // Formatando o retorno
                 $arrRetorno["strCpf"] = $arrRetorno["login"];
                 try {
-                    // Atualizando as informações do usuário
+                    // Atualizando as informaï¿½ï¿½es do usuï¿½rio
                     $this->sql ="UPDATE usuario
                          SET codigo_onesignal = :codigo_onesignal, ultimo_acesso = :ultimo_acesso
                          WHERE id = :id";
@@ -121,7 +121,7 @@ class daoUsuario extends Dao {
             $this->bind("email", $strEmail);
             $this->executar();
             $arrRetorno = $this->buscarDoResultadoAssoc(true);
-            // Caso encontre o usuário pelo email            
+            // Caso encontre o usuï¿½rio pelo email            
             if(!empty($arrRetorno)){
                 $strNovaSenha     = date("dmYs");
                 $this->sql ="UPDATE usuario
@@ -133,16 +133,16 @@ class daoUsuario extends Dao {
                 $this->executar();
                 $intAlterados = $this->rowCount();
                 $arrRetorno["novaSenha"] = $strNovaSenha;
-                // Caso tenha alteração
+                // Caso tenha alteraï¿½ï¿½o
                 return ($intAlterados > 0) ? $arrRetorno : false;
             }else{
-                throw new Exception("Usuário não encontrado");
+                throw new Exception("Usuï¿½rio nï¿½o encontrado");
             }
         } catch (Exception $ex) { }
     }
     
     /**
-     * Método que irá atualizar o usuário 
+     * Mï¿½todo que irï¿½ atualizar o usuï¿½rio 
      *  
      * @param int $intCpf
      * @throws Exception
@@ -164,7 +164,7 @@ class daoUsuario extends Dao {
             $this->bind("login", $intCpf);
             $this->executar();
             $arrRetorno = $this->buscarDoResultadoAssoc(true);
-            // Caso encontre o usuário pelo email
+            // Caso encontre o usuï¿½rio pelo email
             if(!empty($arrRetorno)){
                 $this->sql ="UPDATE usuario
                          SET ativo = :ativo
@@ -174,17 +174,17 @@ class daoUsuario extends Dao {
                 $this->bind("id",  $arrRetorno['id']);
                 $this->executar();
                 $intAlterados = $this->rowCount();
-                if($intAlterados > 0) throw new Exception("Não foi possível atualizar!");
-                // Caso tenha alteração
+                if($intAlterados > 0) throw new Exception("Nï¿½o foi possï¿½vel atualizar!");
+                // Caso tenha alteraï¿½ï¿½o
                 return $arrRetorno;
             }else{
-                throw new Exception("Usuário não encontrado!");
+                throw new Exception("Usuï¿½rio nï¿½o encontrado!");
             }
         } catch (Exception $ex) { }
     }
     
     /**
-     * Método que irá realizar o filtro dos usuários do sistema
+     * Mï¿½todo que irï¿½ realizar o filtro dos usuï¿½rios do sistema
      * 
      * @param array $arrDados
      * @return mixed
@@ -226,7 +226,7 @@ class daoUsuario extends Dao {
     }
     
     /**
-     * Método que irá retornar o usuário pelo id
+     * Mï¿½todo que irï¿½ retornar o usuï¿½rio pelo id
      * 
      * @param int $intIdUsuario
      * @throws Exception
@@ -245,16 +245,16 @@ class daoUsuario extends Dao {
             $this->bind("id", $intIdUsuario);
             $this->executar();
             $arrUsuario = $this->buscarDoResultadoAssoc(true);
-            if(empty($arrUsuario)) throw new Exception("Usuário Não Encontrado!");
+            if(empty($arrUsuario)) throw new Exception("Usuï¿½rio Nï¿½o Encontrado!");
             $arrUsuario["cpf"] = $arrUsuario["login"];
             $arrUsuario["data_nascimento"] = Utilidades::formatarDataPraBr($arrUsuario["data_nascimento"]);
-            // Retornando o usuário
+            // Retornando o usuï¿½rio
             return $arrUsuario;
         } catch (Exception $ex) { }
     }
     
     /**
-     * Verifica se o cpf já está cadastrado
+     * Verifica se o cpf jï¿½ estï¿½ cadastrado
      * 
      * @param array $arrDados
      * @return boolean
@@ -276,7 +276,7 @@ class daoUsuario extends Dao {
     }
     
     /**
-     * Verifica se o email já está cadastrado
+     * Verifica se o email jï¿½ estï¿½ cadastrado
      *
      * @param array $arrDados
      * @return boolean
@@ -298,7 +298,7 @@ class daoUsuario extends Dao {
     }
     
     /**
-     * Verifica se o email já está cadastrado
+     * Verifica se o email jï¿½ estï¿½ cadastrado
      *
      * @param array $arrDados
      * @return boolean
@@ -320,7 +320,7 @@ class daoUsuario extends Dao {
     }
     
     /**
-     * Método que irá editar o usuário na base de dados
+     * Mï¿½todo que irï¿½ editar o usuï¿½rio na base de dados
      * 
      * @param stdClass $objUsuario
      * @throws Exception
@@ -351,7 +351,7 @@ class daoUsuario extends Dao {
                        WHERE id = :id";
             // Preparando a consulta
             $this->prepare();
-            // Realizando os bids para segurança
+            // Realizando os bids para seguranï¿½a
             $this->bind("id", $objUsuario->id);
             $this->bind("perfil_id", $objUsuario->perfil_id);
             $this->bind("nome", $objUsuario->nome);
@@ -368,16 +368,16 @@ class daoUsuario extends Dao {
             $this->bind("uf", @$objUsuario->uf);
             $this->bind("data_alteracao", date("Y-m-d H:i:s"));
             $this->bind("cidade", @$objUsuario->cidade);
-            // Recuperando o id do usuário cadastrado
+            // Recuperando o id do usuï¿½rio cadastrado
             $this->executar();
             $this->comitarTransacao();
-            // Verificando se houve alterações
+            // Verificando se houve alteraï¿½ï¿½es
             return ($this->rowCount() > 0);
         } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
     }
     
     /**
-     * Método que irá cadastrar o usuário
+     * Mï¿½todo que irï¿½ cadastrar o usuï¿½rio
      *
      * @param stdClass $objUsuario
      * @throws Exception
@@ -428,7 +428,7 @@ class daoUsuario extends Dao {
                         ";
             // Preparando a consulta
             $this->prepare();
-            // Realizando os bids para segurança
+            // Realizando os binds para seguranï¿½a
             $this->bind("perfil_id", $objUsuario->perfil_id);
             $this->bind("nome", $objUsuario->nome);
             $this->bind("endereco", @$objUsuario->endereco);
@@ -444,13 +444,30 @@ class daoUsuario extends Dao {
             $this->bind("codigo_onesignal", $objUsuario->onesignal);
             $this->bind("uf", @$objUsuario->uf);
             $this->bind("cidade", @$objUsuario->cidade);
-            // Recuperando o id do usuário cadastrado
+            // Recuperando o id do usuï¿½rio cadastrado
             $this->executar();
-            // Recuperar id do usuário
+            // Recuperar id do usuï¿½rio
             $objUsuario->id = $this->retornarUltimoIDInserido();
             $this->comitarTransacao();
-            // Verificando se houve alterações
+            // Verificando se houve alteraï¿½ï¿½es
             return ($this->rowCount() > 0);
         } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
     }
+
+    function carregarCidades($uf){
+        try {
+            $this->sql ="SELECT
+                          c.nome,                          
+                        FROM
+                          cidade c
+                        INNER JOIN estado e on c.estado = e.id
+                        WHERE e.uf=uf";
+            $this->prepare();
+            $this->bind("uf", $uf);
+            $this->executar();
+            // Retornando a lista de cidades do estado selecionado
+            return $this->buscarDoResultadoAssoc();
+        } catch (Exception $ex) { }
+    }
+
 }

@@ -411,5 +411,21 @@ class Usuario {
             if($this->objDaoUsuario->existeEmail(array("strEmail"=>$objUsuario->email))) throw new Exception("Email já cadastrado!");
         }
     }
+
+    public function get_listarCidades(){
+        // Criando o dao
+        $this->objDaoUsuario = new daoUsuario();
+        // Validando os dados postados
+        if(empty($_GET["UF"])) throw new Exception("UF Não Informada!");
+        // Recuperando os dados do paciente
+        $UF = (int) $_GET["UF"];
+        // Validações
+        if($UF == 0) throw new Exception("UF Inválido!");
+        // Listando as cidades do estado selecionado
+        $arrCidades = $this->objDaoUsuario->carregarCidades($UF);
+        if(empty($arrCidades)) throw new Exception("Cidades não foram Encontrados!");        
+        // Retornando a lista de exames do paciente
+        return $arrCidades;
+    }
     
 }
