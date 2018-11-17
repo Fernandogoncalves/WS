@@ -298,7 +298,7 @@ class daoUsuario extends Dao {
     }
     
     /**
-     * Verifica se o email j� est� cadastrado
+     * Verifica se o pep j� est� cadastrado
      *
      * @param array $arrDados
      * @return boolean
