@@ -206,8 +206,8 @@ class daoUsuario extends Dao {
             if(isset($arrDados["situacao"]) && $arrDados["situacao"] != "")
                 $this->sql .= " AND ativo = :situacao";
             
-            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
-                $this->sql .= " AND numero_pep = :pep";
+            if(isset($arrDados["numero_pep"]) && !empty($arrDados["numero_pep"]))
+                $this->sql .= " AND numero_pep = :numero_pep";
             
             $this->prepare();
             $this->bind("perfil_id", $intPerfilID);
@@ -218,8 +218,8 @@ class daoUsuario extends Dao {
             if(isset($arrDados["situacao"]) && $arrDados["situacao"] != "")
                 $this->bind("situacao", $arrDados["situacao"]);
                 
-            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
-                $this->bind("pep", $arrDados["pep"]);
+            if(isset($arrDados["numero_pep"]) && !empty($arrDados["numero_pep"]))
+                $this->bind("numero_pep", $arrDados["numero_pep"]);
             $this->executar();
             return $this->buscarDoResultadoAssoc();
         } catch (Exception $ex) { }
@@ -303,6 +303,30 @@ class daoUsuario extends Dao {
      * @param array $arrDados
      * @return boolean
      */
+
+    function existePep(array $arrDados){
+        try {
+            $strPep = $arrDados["strPep"];
+            $this->sql ="SELECT
+                            u.id
+                         FROM usuario u
+                         WHERE
+                            u.email = :numero_pep";
+            $this->prepare();
+            $this->bind("numero_pep", $strPep);
+            $this->executar();
+            $arrRetorno = $this->buscarDoResultadoAssoc(true);
+            return (!empty($arrRetorno));
+        } catch (Exception $ex) { }
+    }
+    
+    /**
+     * Verifica se o numero_pep j� est� cadastrado
+     *
+     * @param array $arrDados
+     * @return boolean
+     */
+
     function getIdsOnesignalPorPefil($intIDPerfil){
         try {
             $intIDPerfil =(int) $intIDPerfil;
