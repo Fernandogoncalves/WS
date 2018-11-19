@@ -74,7 +74,8 @@ class Exame {
      */
     public function post_cadastrarExame(){
         // Criando o dao
-        $this->objDaoexame = new daoExame();
+        $this->objDaoexame      = new daoExame();
+        $this->objDaoUsuario    = new daoUsuario();
         // Validando os dados postados
         if(empty($_POST["dadosExame"])) throw new Exception("Dados Não Informados!");
         // Recuperando os dados do paciente
@@ -85,7 +86,22 @@ class Exame {
         // Cadastrando o exame
         $bolCadastro = $this->objDaoexame->cadastrarExame($objExame);// cadastrando o exame na base
         if(!$bolCadastro) throw new Exception("Não foi possível cadastrar o exame!");
-        return true;
+        // Recuperando todos os usuários admin
+        $objUsuario = (object) $this->objDaoUsuario->getUsuarioPorId($objExame->usuario_id);
+        // Criando os dados de notificação
+        $arrDadosNotificacao = array(
+            'include_player_ids' => array($objUsuario->codigo_onesignal),
+            "headings" => array("en" => "Lembrede de Exame!"),
+            'contents' => array("en" => "Olá, {$objUsuario->nome}! Seu exame com previsão para {$objExame->data_previsao} deve está pronto!"),
+            'send_after' => Utilidades::formatarDataPraBanco($objExame->data_previsao) . " 17:00:00 GMT-3",
+            'data' => array(
+                "foo"=>"bar",
+                "acao"=>Constantes::$ULR_MEUS_EXAMES
+            )
+        );
+        // Enviando a notificação
+        $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
+        return $objRerotno;
     }
     
     /**

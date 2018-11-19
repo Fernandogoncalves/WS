@@ -81,7 +81,6 @@ function getExecucao($bolPost = false, $controller, $action, $parameter = null){
     $arrRetorno["strMensagem"] = $strMensagem;
     // Gerando Log
     gerarLog($arrRetorno, $parametros);
-    
     // Retornando 
     echo json_encode($arrRetorno);
 }
@@ -100,9 +99,9 @@ function gerarLog($arrRetorno, $parametros){
     $strMensagem    = "Data: {$strData} - {$strParametros} \r\n";
     // Abre ou cria o arquivo bloco1.txt
     // "a" representa que o arquivo é aberto para ser escrito
-    $fp = fopen("./log.txt", "a+");
+    $fp = @fopen("./log.txt", "a+");
     // Escreve a mensagem passada através da variável $msg
-    $escreve = fwrite($fp, $strMensagem);
+    $escreve = @fwrite($fp, $strMensagem);
     // Fecha o arquivo
-    fclose($fp);
+    @fclose($fp);
 }

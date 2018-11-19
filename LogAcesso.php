@@ -6,10 +6,6 @@
  */
 class LogAcesso{
     function logAcesso($msg){
-        echo '<pre>';
-        print_r($msg);
-        echo '</pre>';
-        die();
         // Abre ou cria o arquivo bloco1.txt
         // "a" representa que o arquivo é aberto para ser escrito
         $fp = fopen("./log.txt", "a");
