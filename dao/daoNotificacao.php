@@ -128,7 +128,7 @@ class daoNotificacao extends Dao {
             $this->comitarTransacao();
             // Verificando se houve alteraçõeses
             return ($this->rowCount() > 0);
-        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($this->sql . " - " . $ex->getMessage()); }
+        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage(), 9999); }
     }
     
     /**
@@ -205,7 +205,7 @@ class daoNotificacao extends Dao {
             if(empty($arrUsuarios)) throw new Exception("Usuários não foram encontrados!");
             // Retornando os exames filtrados
             return $arrUsuarios;
-        } catch (Exception $ex) { throw new Exception($ex->getMessage()); }
+        } catch (Exception $ex) { throw new Exception($ex->getMessage(), 9999); }
     }
     
     /**

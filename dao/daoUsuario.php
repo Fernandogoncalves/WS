@@ -373,7 +373,7 @@ class daoUsuario extends Dao {
             $this->comitarTransacao();
             // Verificando se houve altera��es
             return ($this->rowCount() > 0);
-        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
+        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage(), 9999); }
     }
     
     /**
@@ -451,7 +451,7 @@ class daoUsuario extends Dao {
             $this->comitarTransacao();
             // Verificando se houve altera��es
             return ($this->rowCount() > 0);
-        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage()); }
+        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage(), 9999); }
     }
 
     function carregarCidades($uf){
