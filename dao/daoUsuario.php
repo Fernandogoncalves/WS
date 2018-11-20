@@ -311,7 +311,7 @@ class daoUsuario extends Dao {
                             u.id
                          FROM usuario u
                          WHERE
-                            u.email = :numero_pep";
+                            u.numero_pep = :numero_pep";
             $this->prepare();
             $this->bind("numero_pep", $strPep);
             $this->executar();
