@@ -93,7 +93,7 @@ class Exame {
             'include_player_ids' => array($objUsuario->codigo_onesignal),
             "headings" => array("en" => "Lembrede de Exame!"),
             'contents' => array("en" => "Olá, {$objUsuario->nome}! Seu exame com previsão para {$objExame->data_previsao} deve está pronto!"),
-            'send_after' => Utilidades::formatarDataPraBanco($objExame->data_previsao) . " 17:00:00 GMT-3",
+            'send_after' => Utilidades::formatarDataPraBanco($objExame->data_previsao) . " 08:00:00 GMT-3",
             'data' => array(
                 "foo"=>"bar",
                 "acao"=>Constantes::$ULR_MEUS_EXAMES

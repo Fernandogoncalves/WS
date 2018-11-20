@@ -355,7 +355,7 @@ class Usuario {
         $strBody .= "<b>Senha:</b> " . $arrUsuario["novaSenha"] . " <br />";
         // Colocando o corpo do email        
         $mail->Body = $strBody;
-        if(!$mail->send()) throw new Exception("Não foi possível enviar e-mail!");
+        if(!$mail->send()) throw new Exception("Não foi possível enviar e-mail!", 9999);
     }
     
     /**
