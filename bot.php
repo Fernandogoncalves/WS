@@ -81,7 +81,7 @@ function processMessage($message, $arrResultadoView, $keyboard, $arrIds)
             $strTexto = "";
             switch ($message['text']){
                 case 'Logs':
-                    $strTexto = 'Logs do sistema: https://conexaovidaimip1.websiteseguro.com/dev/log.txt';
+                    $strTexto = 'Logs do sistema: https://conexaovidaimip1.websiteseguro.com/prod/log.txt';
                     break;
                 case 'Usuarios' :
                     $strTexto = 'Usuarios do Sistema: ' . getUsuarios();

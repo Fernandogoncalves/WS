@@ -418,9 +418,7 @@ class Usuario {
         // Validando os dados postados
         if(empty($_GET["UF"])) throw new Exception("UF Não Informada!");
         // Recuperando os dados do paciente
-        $UF = (int) $_GET["UF"];
-        // Validações
-        if($UF == 0) throw new Exception("UF Inválido!");
+        $UF = $_GET["UF"];
         // Listando as cidades do estado selecionado
         $arrCidades = $this->objDaoUsuario->carregarCidades($UF);
         if(empty($arrCidades)) throw new Exception("Cidades não foram Encontrados!");        

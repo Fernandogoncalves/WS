@@ -478,14 +478,20 @@ class daoUsuario extends Dao {
         } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage(), 9999); }
     }
 
+    /**
+     * Método que irá buscar as cidades pela uf
+     * 
+     * @param string $uf
+     * @return mixed
+     */
     function carregarCidades($uf){
         try {
             $this->sql ="SELECT
-                          c.nome,                          
+                          c.nome                        
                         FROM
                           cidade c
                         INNER JOIN estado e on c.estado = e.id
-                        WHERE e.uf=uf";
+                        WHERE e.uf=:uf";
             $this->prepare();
             $this->bind("uf", $uf);
             $this->executar();
