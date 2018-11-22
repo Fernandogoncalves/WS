@@ -112,7 +112,7 @@ class daoExame extends Dao {
             $this->sql ="SELECT
                           SUM(TIMESTAMPDIFF(DAY,data_exame,data_recebimento)) AS total_dias,
                           COUNT(ID) AS qtd_exames,
-                          ROUND(SUM(TIMESTAMPDIFF(DAY,data_exame,data_recebimento)) / COUNT(ID), 0) AS media,
+                          ROUND(SUM(TIMESTAMPDIFF(DAY,data_exame,data_recebimento)) / COUNT(ID), 0) AS mediaCalculada,
                           :data_coleta + INTERVAL ROUND(SUM(TIMESTAMPDIFF(DAY,data_exame,data_recebimento)) / COUNT(ID), 0) DAY AS previsao
                         FROM exame
                         WHERE 
@@ -276,7 +276,7 @@ class daoExame extends Dao {
                                 tipo_exame_id = e.tipo_exame_id 
                                 AND data_exame >= NOW() - INTERVAL 120 DAY
                                 AND data_recebimento is not null
-                           ) AS media
+                           ) AS mediaCalculada
                          FROM exame e
                          INNER JOIN area a on a.id = e.area_id
                          INNER JOIN tipo_exame tp on tp.id = e.tipo_exame_id
