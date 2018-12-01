@@ -23,7 +23,8 @@ class daoUsuario extends Dao {
             // Filtrando todos os cancers
             $this->sql ="SELECT
                           *
-                        FROM cancer";
+                        FROM cancer
+                        ORDER BY ordem";
             $this->prepare();
             $this->executar();
             // Retornando a lista de cancer
@@ -123,7 +124,7 @@ class daoUsuario extends Dao {
             $arrRetorno = $this->buscarDoResultadoAssoc(true);
             // Caso encontre o usu�rio pelo email            
             if(!empty($arrRetorno)){
-                $strNovaSenha     = date("dmYs");
+                $strNovaSenha     = date("ids");
                 $this->sql ="UPDATE usuario
                          SET senha = :senha
                          WHERE id = :id";
@@ -354,6 +355,8 @@ class daoUsuario extends Dao {
         try {
             $strNovaSenha = $objUsuario->senha;
             $this->iniciarTransacao();
+            // Senha
+            $strSenha = (isset($objUsuario->senha) && !empty($objUsuario->senha)) ? " , senha = :senha" : "";
             $this->sql ="
                 
                        UPDATE usuario
@@ -372,6 +375,7 @@ class daoUsuario extends Dao {
                             uf = :uf,
                             cidade = :cidade,
                             data_alteracao = :data_alteracao
+                            {$strSenha}
                        WHERE id = :id";
             // Preparando a consulta
             $this->prepare();
@@ -392,6 +396,10 @@ class daoUsuario extends Dao {
             $this->bind("uf", @$objUsuario->uf);
             $this->bind("data_alteracao", date("Y-m-d H:i:s"));
             $this->bind("cidade", @$objUsuario->cidade);
+            // caso a senha seja informada
+            if(isset($objUsuario->senha) && !empty($objUsuario->senha))
+                $this->bind("senha", md5(@$objUsuario->senha));
+            
             // Recuperando o id do usu�rio cadastrado
             $this->executar();
             $this->comitarTransacao();
@@ -440,7 +448,7 @@ class daoUsuario extends Dao {
                             :contato,
                             :sexo,
                             :email,
-                            0,
+                            :ativo,
                             :cpf,
                             :senha,
                             :cancer_id,
@@ -461,6 +469,7 @@ class daoUsuario extends Dao {
             $this->bind("contato", @$objUsuario->contato);
             $this->bind("sexo", $objUsuario->sexo);
             $this->bind("email", $objUsuario->email);
+            $this->bind("ativo", $objUsuario->ativo);
             $this->bind("cpf", $objUsuario->cpf);
             $this->bind("senha", md5($objUsuario->senha));
             $this->bind("cancer_id", $objUsuario->cancer_id);

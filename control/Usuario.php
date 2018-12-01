@@ -372,10 +372,15 @@ class Usuario {
         if(empty($objPaciente->cidade))     throw new Exception("Cidade Não Informada!");
         if(empty($objPaciente->uf))         throw new Exception("UF Não Informado!");
         if(empty($objPaciente->contato))    throw new Exception("Nº de Contato Não Informado!");
+        if(strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato))<10 || strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato))>11) throw new Exception("Contato Inválido!");
+        if(!empty($objPaciente->contato_dois) && strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato_dois))<10 || strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato_dois))>11)
+            throw new Exception("Segundo Contato Inválido!");
+        if($objPaciente->contato == $objPaciente->contato_dois) throw new Exception("Os números dos contatos não porem ser iguais!");
         if($bolEdit){// caso seja edição
             if(empty($objPaciente->numero_pep))        throw new Exception("Nº PEP Não Informado!");
         }else{
             if(empty($objPaciente->pep))        throw new Exception("Nº PEP Não Informado!");
+            if($this->objDaoUsuario->existePep(array("strPep"=>$objPaciente->pep))) throw new Exception("Pep já cadastrado!");
         }
         if(!Utilidades::validarData($objPaciente->data_nascimento))    throw new Exception("Data Nascimento Inválida!");
         // validando os dados que são comuns ao paciente e a equipe médica
@@ -406,9 +411,9 @@ class Usuario {
         if(!$bolEdit){
             if(empty($objUsuario->senha)) throw new Exception("Senha Não Informada!");
             if(strlen($objUsuario->senha) < 6 || strlen($objUsuario->senha) > 8) throw new Exception("Senha inválida! Sua senha deve conter entre 6 e 8 caracteres!");
-            if($objUsuario->senha != $objUsuario->confirmacao_senha) throw new Exception("Senhas são diferentes!");
-            if($this->objDaoUsuario->existeCPF(array("strCPF"=>$objUsuario->cpf))) throw new Exception("CPF já cadastrado!");
-            if($this->objDaoUsuario->existeEmail(array("strEmail"=>$objUsuario->email))) throw new Exception("Email já cadastrado!");
+            if($objUsuario->senha != $objUsuario->confirmacao_senha) throw new Exception("Senhas são diferentes!", 9999);
+            if($this->objDaoUsuario->existeCPF(array("strCPF"=>$objUsuario->cpf))) throw new Exception("CPF já cadastrado!", 9999);
+            if($this->objDaoUsuario->existeEmail(array("strEmail"=>$objUsuario->email))) throw new Exception("Email já cadastrado!", 9999);
         }
     }
 

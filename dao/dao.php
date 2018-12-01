@@ -70,7 +70,11 @@ class Dao {
     protected function bind($campo, $valor) {
         $this->stmtPDO->bindValue($campo, $valor);
     }
-
+    
+    protected function bindParam($campo, $valor, $strParam = PDO::PARAM_STR) {
+        $this->stmtPDO->bindParam($campo, $valor, $strParam);
+    }
+    
     protected function executar() {
         return $this->stmtPDO->execute();
     }
