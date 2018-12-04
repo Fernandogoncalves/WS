@@ -72,12 +72,13 @@ function getExecucao($bolPost = false, $controller, $action, $parameter = null){
         $bolRetorno = true;
     } catch (Exception $e) {
         // Se o erro for severo ou que deve ser enviado para analise
-        if($e->getCode() == 9999){
+        if(in_array($e->getCode(), array(9999, 8))){
             // Criando o retorno
             $strMensagem = "Controlador: {$controller} - Ação: {$action} ";
             if($bolPost) $strMensagem .= " Dados POST: " . json_encode($_POST);
             $strMensagem .= " Dados Retorno: " . json_encode($arrDadosRetorno);
             $strMensagem .= " Mensagem: " . $e->getMessage();
+            $strMensagem .= " Caminho: " . $e->getTraceAsString();
             // Incluindo o bot
             include_once './bot.php';
             // enviando a mensagem

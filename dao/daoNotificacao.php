@@ -304,6 +304,7 @@ class daoNotificacao extends Dao {
             if(isset($arrDados["titulo"]) && !empty($arrDados["titulo"]))
                  $this->bind("titulo", "%".$arrDados["titulo"]."%");
             
+            $this->sql .= " ORDER BY id DESC";
             // EXECUTANDO A CONSULTA
             $this->executar();
             $arrNotificacoes = $this->buscarDoResultadoAssoc();

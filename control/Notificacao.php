@@ -167,7 +167,7 @@ class Notificacao {
             $arrNotificacao["filtro"] = (array) json_decode($arrNotificacao["filtro"]);
             // Formatando o retorno
             $arrNotificacao["titulo"]        = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".$arrNotificacao["titulo"]."</a>";
-            $arrNotificacao["data_envio"]    = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".Utilidades::formatarDataPraBr($arrNotificacao["data_envio"])."</a>";
+            $arrNotificacao["data_envio"]    = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'><span class='esconder-informacao'>".$arrNotificacao["id"]."</span> " . Utilidades::formatarDataPraBr($arrNotificacao["data_envio"])."</a>";
             $arrNotificacao["total"]         = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".$arrNotificacao["filtro"]["total"]."</a>";
             $arrNotificacoes[$inChave] = $arrNotificacao;
         }

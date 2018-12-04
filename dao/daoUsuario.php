@@ -336,7 +336,9 @@ class daoUsuario extends Dao {
                          FROM usuario u
                          WHERE
                             ativo = 1
-                            and u.perfil_id = :perfil_id";
+                            and u.perfil_id = :perfil_id
+                            and u.codigo_onesignal is not null
+                            and u.codigo_onesignal != 'undefined' ";
             $this->prepare();
             $this->bind("perfil_id", $intIDPerfil);
             $this->executar();
@@ -469,7 +471,7 @@ class daoUsuario extends Dao {
             $this->bind("contato", @$objUsuario->contato);
             $this->bind("sexo", $objUsuario->sexo);
             $this->bind("email", $objUsuario->email);
-            $this->bind("ativo", $objUsuario->ativo);
+            $this->bind("ativo", (!isset($objUsuario->ativo) || empty($objUsuario->ativo)) ? 0 : $objUsuario->ativo);
             $this->bind("cpf", $objUsuario->cpf);
             $this->bind("senha", md5($objUsuario->senha));
             $this->bind("cancer_id", $objUsuario->cancer_id);

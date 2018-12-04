@@ -206,18 +206,6 @@ function getUsuarios(){
     return $arrRetorno["total"];
 }
 
-// echo '<pre>';
-// print_r(getAgendamentos());
-// echo '<pre>';
-// print_r(getTotalExames());
-// echo '<pre>';
-// print_r(getTotalNotificacoes());
-// echo '<pre>';
-// print_r(getUsuarios());
-// echo '</pre>';
-// die();
-
-
 /*Com o webhook setado, não precisamos mais obter as mensagens através do método getUpdates.Em vez disso,
  * como o este arquivo será chamado automaticamente quando o bot receber uma mensagem, utilizamos "php://input"
  * para obter o conteúdo da última mensagem enviada ao bot.
@@ -229,5 +217,3 @@ $update = json_decode($update_response, true);
 if (isset($update["message"])) {
     processMessage($update["message"], array(), $keyboard, $arrIds);
 }
-
-die(date("h:i:s"));

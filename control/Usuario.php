@@ -189,7 +189,7 @@ class Usuario {
         $objPaciente = json_decode($_POST["dadosPaciente"]);
         $objPaciente->onesignal = $_POST["onesignal"];// Recuperando o id do onesignal
         // Validando os dados postados
-        $this->validarCadastroPaciente($objPaciente);
+        $this->validarCadastroPaciente($objPaciente, false, true);
         $objPaciente->perfil_id = 1;// Setando o id perfil para paciente
         $objPaciente->cpf = preg_replace("/[^0-9]/", "", $objPaciente->cpf);// Removendo formatação do cpf
         $objPaciente->data_nascimento = Utilidades::formatarDataPraBanco($objPaciente->data_nascimento);// Formatando a data para o formato de banco de dados
@@ -239,9 +239,9 @@ class Usuario {
         $objPaciente->cpf = preg_replace("/[^0-9]/", "", $objPaciente->cpf);// Removendo formatação do cpf
         // Validando os dados postados
         if($objPaciente->perfil_id == 1)
-            $this->validarCadastroPaciente($objPaciente);
+            $this->validarCadastroPaciente($objPaciente, false, true);
         else {
-            $this->validarCadastro($objPaciente);
+            $this->validarCadastro($objPaciente, false, true);
             $objPaciente->cancer_id = 7;// Setando o cancer para nenhum
         }
         // Formatando a data de nascimento
@@ -267,11 +267,12 @@ class Usuario {
         if(empty($_POST["dadosUsuario"])) throw new Exception("Dados Não Informados!");
         // Recuperando os dados do paciente
         $objUsuario = json_decode($_POST["dadosUsuario"]);
+        $bolValidarSenha = (int) $_GET["validarSenha"];
         // Validando os dados postados de paciente
         if($objUsuario->perfil_id == 1)
-            $this->validarCadastroPaciente($objUsuario, true);
+            $this->validarCadastroPaciente($objUsuario, true, $bolValidarSenha);
         else 
-            $this->validarCadastro($objUsuario, true);
+            $this->validarCadastro($objUsuario, true, $bolValidarSenha);
         // Formatando o cpf
         $objUsuario->cpf = preg_replace("/[^0-9]/", "", $objUsuario->cpf);// Removendo formatação do cpf
         $objUsuario->data_nascimento = Utilidades::formatarDataPraBanco($objUsuario->data_nascimento);// Formatando a data para o formato de banco de dados
@@ -281,6 +282,7 @@ class Usuario {
         // Cadastrando o paciente
         $bolEditado = $this->objDaoUsuario->cadastrarEditarUsuario($objUsuario);// Editar o usuário
         if(!$bolEditado) throw new Exception("Não foi possível editar o usuário!");
+        $objRerotno =  null;
         // Caso o usuário tenha sido ativado
         if(@$objUsuarioBase->ativo == 0 && @$objUsuario->ativo ==1){
             // Recuperando todos os usuários admin
@@ -294,7 +296,7 @@ class Usuario {
             // Enviando a notificação
             $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
         }
-        return true;
+        return $objRerotno;
     }
     
     /**
@@ -365,7 +367,7 @@ class Usuario {
      * @param string $bolEdit
      * @throws Exception
      */
-    function validarCadastroPaciente(stdClass $objPaciente, $bolEdit = false){
+    function validarCadastroPaciente(stdClass $objPaciente, $bolEdit = false, $bolValidarSenha = true){
         // Validação dos dados de usuário
         if(empty($objPaciente->sexo))       throw new Exception("Sexo Não Informado!");
         if(empty($objPaciente->endereco))   throw new Exception("Endereço Não Informado!");
@@ -373,9 +375,16 @@ class Usuario {
         if(empty($objPaciente->uf))         throw new Exception("UF Não Informado!");
         if(empty($objPaciente->contato))    throw new Exception("Nº de Contato Não Informado!");
         if(strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato))<10 || strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato))>11) throw new Exception("Contato Inválido!");
-        if(!empty($objPaciente->contato_dois) && strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato_dois))<10 || strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato_dois))>11)
-            throw new Exception("Segundo Contato Inválido!");
-        if($objPaciente->contato == $objPaciente->contato_dois) throw new Exception("Os números dos contatos não porem ser iguais!");
+        if(isset($objPaciente->contato_dois)){
+            if(!empty($objPaciente->contato_dois) 
+                && strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato_dois))<10 
+                || strlen(preg_replace("/[^0-9]/", "", $objPaciente->contato_dois))>11)
+                throw new Exception("Segundo Contato Inválido!");
+        }
+        if(isset($objPaciente->contato_dois)){
+            if($objPaciente->contato == $objPaciente->contato_dois) throw new Exception("Os números dos contatos não porem ser iguais!");
+        }
+        
         if($bolEdit){// caso seja edição
             if(empty($objPaciente->numero_pep))        throw new Exception("Nº PEP Não Informado!");
         }else{
@@ -384,7 +393,7 @@ class Usuario {
         }
         if(!Utilidades::validarData($objPaciente->data_nascimento))    throw new Exception("Data Nascimento Inválida!");
         // validando os dados que são comuns ao paciente e a equipe médica
-        $this->validarCadastro($objPaciente, $bolEdit);
+        $this->validarCadastro($objPaciente, $bolEdit, $bolValidarSenha);
     }
     
     /**
@@ -394,7 +403,7 @@ class Usuario {
      * @param string $bolEdit
      * @throws Exception
      */
-    function validarCadastro(stdClass $objUsuario, $bolEdit = false){
+    function validarCadastro(stdClass $objUsuario, $bolEdit = false, $bolValidarSenha = true){
         // Validação dos dados comuns
         if(empty($objUsuario)) throw new Exception("Dados Não Informados!");
         if(empty($objUsuario->cpf)) throw new Exception("CPF Não Informado!");
@@ -407,11 +416,15 @@ class Usuario {
         if(!Utilidades::diffData(Utilidades::formatarDataPraBanco($objUsuario->data_nascimento), date("Y-m-d")))    
             throw new Exception("Data Nascimento Maior que a Data Atual!");
         
-        // Caso não seja editar
-        if(!$bolEdit){
+        // se for necessário validar senha
+        if($bolValidarSenha){
             if(empty($objUsuario->senha)) throw new Exception("Senha Não Informada!");
             if(strlen($objUsuario->senha) < 6 || strlen($objUsuario->senha) > 8) throw new Exception("Senha inválida! Sua senha deve conter entre 6 e 8 caracteres!");
             if($objUsuario->senha != $objUsuario->confirmacao_senha) throw new Exception("Senhas são diferentes!", 9999);
+        }
+        
+        // Caso não seja editar
+        if(!$bolEdit){
             if($this->objDaoUsuario->existeCPF(array("strCPF"=>$objUsuario->cpf))) throw new Exception("CPF já cadastrado!", 9999);
             if($this->objDaoUsuario->existeEmail(array("strEmail"=>$objUsuario->email))) throw new Exception("Email já cadastrado!", 9999);
         }
