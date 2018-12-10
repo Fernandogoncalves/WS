@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of Empreendimento
  *
@@ -13,179 +7,62 @@
  */
 class Contato {
     //put your code here
-    
-    private $daoContatos;
-    
-    public function get_filtros(){
-        // Criando o dao
-        $this->daoContatos = new daoContato();
-        
-        if(isset($_GET["origem"])){
-            $arrFiltro = array();
-            $arrFiltro["origem"]    = @$_GET["origem"];
-            $bolEsport = (@$_GET["export"] == "true") ? true : false;
-            $arrRetorn = $this->daoContatos->getContatosPorOrigem($arrFiltro, $bolEsport);
-            $arrRetorn = $this->formataDados($arrRetorn);
-        }else{
-            $views = $this->daoContatos->variable_get('webform_mysql_views_views');
-            $arrRetorn = array();
-            $arrRetorn[] = "Pra selecionar um formul·rio basta fornecer o paramatro ?origem=formul·rio";
-            foreach($views as $intChave => $arrValor){
-                $arrRetorn[] = strtoupper(trim(preg_replace("/webform_views_|\_/", " ", $arrValor))) . " origem=" . $arrValor;
+    public function post_contatoSite(){
+        $name    = stripslashes(trim($_POST['name']));
+        $email   = stripslashes(trim($_POST['email']));
+        $subject = stripslashes(trim($_POST['subject']));
+        $message = stripslashes(trim($_POST['message']));
+        if (empty($name)) {
+            $errors['name'] = 'Name is required.';
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Email is invalid.';
+        }
+        if (empty($subject)) {
+            $errors['subject'] = 'Subject is required.';
+        }
+        if (empty($message)) {
+            $errors['message'] = 'Message is required.';
+        }
+        // if there are any errors in our errors array, return a success boolean or false
+        if (!empty($errors)) {
+            $data['success'] = false;
+            $data['errors']  = $errors;
+        } else {
+            // Criando o email
+            $mail = new PHPMailer();
+            $mail->IsSMTP();		// Ativar SMTP
+            //$mail->SMTPDebug = 3;		// Debugar: 1 = erros e mensagens, 2 = mensagens apenas
+            $mail->SMTPAuth = true;		// AutenticaÁ„o ativada
+            $mail->SMTPSecure = 'ssl';	// SSL REQUERIDO pelo GMail
+            $mail->Host = 'smtp.gmail.com';	// SMTP utilizado
+            $mail->Port = 465;  		// A porta 587 dever· estar aberta em seu servidor
+            $mail->SMTPSecure = 'ssl';
+            $mail->Username = 'conexaovidaimip@gmail.com';
+            $mail->Password = 'conexaovida';
+            $mail->FromName = 'Conex„o Vida - IMIP';
+            $mail->IsHTML(true);
+            // Caso seja um ˙nico email
+            $mail->addAddress("infinitympes@gmail.com");
+            // Add a recipient
+            $mail->WordWrap = 50;                                 // Set word wrap to 50 characters
+            $mail->Subject = "Contato Site";
+            // Criando o corpo do email
+            $strBody = "<strong>Name: </strong>'.$name.'<br />$subject
+                        <strong>Assunto: </strong>'.$subject.'<br />
+                        <strong>Email: </strong>'.$email.'<br />
+                        <strong>Message: </strong>'.nl2br($message).'<br />";
+            // Colocando o corpo do email
+            $mail->Body = $strBody;
+            
+            try {
+                if(!$mail->send()) throw new Exception("N„o foi possÌvel enviar e-mail!", 9999);
+                $data = 1;
+                
+            } catch (Exception $e) {
+                $data = 0;
             }
         }
-        return $arrRetorn;
-    }
-    
-    
-    function formataDados($arrRetorno){
-
-        $arrRetornoDados = array();
-        // Reansformando os objetos em array
-        foreach($arrRetorno as $intChave => $objDados){
-            $arrRetorno[$intChave] = (array) $objDados;
-        }
-
-
-        foreach($arrRetorno[0] as $strChave => $strDados){
-            $arrRetornoDados["header"][] = $this->getChaveFormatada($strChave);
-        }
-
-        $rows = array();
-        $intContador = 0;
-        foreach($arrRetorno as $strChave => $strDados){
-
-            $rows[$intContador] = array();
-            foreach($strDados as $strChave => $strValor){
-
-                $rows[$intContador][$strChave] = $this->getValorPorChave($strChave, $strValor);
-            }
-
-            $intContador++;
-        }
-
-        $arrRetornoDados["rows"] = $rows;
-
-        return $arrRetornoDados;
-    }
-
-    function getValorPorChave($strChave, $strValor){
-
-        switch ($strChave) {
-            case "sid":
-                        $strValor = $strValor;
-                break;
-            case "uid":
-                        $strValor = ($strValor == 0) ? "An√¥nimo" : $strValor;
-                break;
-            case "nome":
-                        $strValor = $strValor;
-                break;
-            case "telefone":
-                        $strValor = $strValor;
-                break;
-            case "email":
-                        $strValor = $strValor;
-                break;
-            case "mensagem":
-                        $strValor = $strValor;
-                break;
-            case "nid_emp":
-//                 echo "<pre>";
-//                 var_dump((!empty($strValor) && $strValor != null));die;
-//                     echo $strValor . "<br />";
-                        $strValor = (!empty($strValor) && $strValor != null) ? $this->node_load($strValor)->title : "N√£o foi poss√≠vel encontrar o empreendimento";
-                break;
-            case "campanha_id":
-                        $strValor = (!empty($strValor)  && $strValor != null) ? $this->node_load($strValor)->title : "N√£o foi poss√≠vel encontrar a campanha";
-                break;
-            case "submitted":
-                        $strValor = date("d/m/Y H:i", strtotime($strValor));
-                break;
-            case "remote_addr":
-                        $strValor = $strValor;
-                break;
-            case "title":
-                        $strValor = $strValor;
-                break;
-            case "regional":
-                        $strValor = (!empty($strValor)  && $strValor != null) ? $this->taxonomy_term_load(preg_replace("/[^0-9]/", "", $strValor))->name  : "N√£o foi poss√≠vel encontrar o regional";
-                break;
-            case "setor_novo":
-                        $strValor = (!empty($strValor)  && $strValor != null) ? $this->taxonomy_term_load(preg_replace("/[^0-9]/", "", $strValor))->name  : "N√£o foi poss√≠vel encontrar o setor";
-                break;
-            case "tipo":
-                        $strValor = (!empty($strValor) && $strValor != null) ? $this->taxonomy_term_load(preg_replace("/[^0-9]/", "", $strValor))->name  : "N√£o foi poss√≠vel encontrar o setor";
-                break;
-
-        }
-
-        return $strValor;
-    }
-
-
-    function getChaveFormatada($strChave){
-
-        switch ($strChave) {
-            case "sid":
-                        $strChave = "ID do contato";
-                break;
-            case "uid":
-                        $strChave = "ID do Usu√°rio";
-                break;
-            case "nome":
-                        $strChave = "Usu√°rio Contato";
-                break;
-            case "telefone":
-                        $strChave = "Telefone";
-                break;
-            case "email":
-                        $strChave = "E-mail";
-                break;
-            case "mensagem":
-                        $strChave = "Mensagem";
-                break;
-            case "nid_emp":
-                        $strChave = "Empreendimento";
-                break;
-            case "title":
-                        $strChave = "title";
-                break;
-            case "campanha_id":
-                        $strChave = "Campanha";
-                break;
-            case "submitted":
-                        $strChave = "Data Contato";
-                break;
-            case "remote_addr":
-                        $strChave = "Endere√ßo IP";
-                break;
-
-        }
-
-        return $strChave;
-    }
-    
-    /**
-     * Ir√° retornar a noticia
-     * 
-     * @param type $nid
-     * @return type
-     */
-    function  node_load($nid){
-        // Criando o dao
-        $this->daoEmpreendimento = new daoEmpreendimento();
-        return $this->daoEmpreendimento->node_load($nid);
-    }
-    /**
-     * Ir√° retornar a noticia
-     * 
-     * @param type $nid
-     * @return type
-     */
-    function  taxonomy_term_load($nid){
-        // Criando o dao
-        $this->daoEmpreendimento = new daoEmpreendimento();
-        return $this->daoEmpreendimento->taxonomy_term_load($nid);
+        return true;
     }
 }

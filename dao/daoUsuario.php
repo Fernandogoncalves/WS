@@ -438,7 +438,8 @@ class daoUsuario extends Dao {
                             contato_dois,
                             codigo_onesignal,
                             uf,
-                            cidade
+                            cidade,
+                            data_cadastro
                         )
                         VALUES
                         (
@@ -457,7 +458,8 @@ class daoUsuario extends Dao {
                             :contato_dois,
                             :codigo_onesignal,
                             :uf,
-                            :cidade
+                            :cidade,
+                            :data_cadastro
                         )
                         ";
             // Preparando a consulta
@@ -479,6 +481,8 @@ class daoUsuario extends Dao {
             $this->bind("codigo_onesignal", $objUsuario->onesignal);
             $this->bind("uf", @$objUsuario->uf);
             $this->bind("cidade", @$objUsuario->cidade);
+            $this->bind("data_cadastro", date("Y-m-d H:i:s"));
+            
             // Recuperando o id do usu�rio cadastrado
             $this->executar();
             // Recuperar id do usu�rio

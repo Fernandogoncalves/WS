@@ -101,9 +101,23 @@ class Exame {
         );
         // Enviando a notificação
         $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
-        return $objRerotno;
+        // Enviando a notificação para o paciente confirmar que recebeu o exame
+        $strDataEnvioConfirmacao = date('Y-m-d', strtotime(Utilidades::formatarDataPraBanco($objExame->data_previsao). ' + 1 days'));
+        // Criando os dados de notificação
+        $arrDadosNotificacao = array(
+            'include_player_ids' => array($objUsuario->codigo_onesignal),
+            "headings" => array("en" => "Confirmar Recebimento de Exame!"),
+            'contents' => array("en" => "Olá, {$objUsuario->nome}! Você recebeu seu exame que estava previsto para o dia {$objExame->data_previsao}, se sim, poderia você confirmou o recebimento dele? Caso tenha confirmado o recebimento, favor desconsiderar essa mensagem!"),
+            'send_after' => "{$strDataEnvioConfirmacao} 12:00:00 GMT-3",
+            'data' => array(
+                "foo"=>"bar",
+                "acao"=>Constantes::$ULR_MEUS_EXAMES
+            )
+        );
+        // Enviando a notificação de confirmação
+        $objRerotnoDois = Utilidades::enviarNotificacao($arrDadosNotificacao);
+        return array($objRerotno, $objRerotnoDois);
     }
-    
     /**
      * Método que irá realiza a confirmação de recebimento do exame do paciente
      * 

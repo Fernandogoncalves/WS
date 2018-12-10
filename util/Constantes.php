@@ -14,5 +14,6 @@ class Constantes {
     static $ULR_DETALHE_EXAME                       = "#/app/detalhe-exame/";
     static $ULR_DETALHE_NOTIFICACAO                 = "#/app/detalhe-notificacao/";
     static $ULR_MEUS_EXAMES                         = "app.meus-exames";
+    static $ULR_AGENDAMENTO_CONSULTA                = "app.detalhe-agendamento";
     
 }

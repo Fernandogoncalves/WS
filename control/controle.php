@@ -11,6 +11,10 @@ require __DIR__.'../../util/Constantes.php';
 require __DIR__.'../../dao/daoUsuario.php';
 require __DIR__.'../../dao/daoExame.php';
 require __DIR__.'../../dao/daoNotificacao.php';
+require __DIR__.'../../dao/daoConsulta.php';
+
+// Contato do site
+require __DIR__.'../../dao/daoContato.php';
 
 
 

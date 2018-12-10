@@ -35,7 +35,7 @@ $app->get('/:controller/:action(/:parameter)', function ($controller, $action, $
     getExecucao(false, $controller, $action, $parameter);
 });
 
-//POST não possui parâmetros na URL, e sim na requisição
+//POST nï¿½o possui parï¿½metros na URL, e sim na requisiï¿½ï¿½o
 
 $app->post('/:controller/:action', function ($controller, $action) use ($app) {
     getExecucao(true, $controller, $action);
@@ -44,7 +44,7 @@ $app->post('/:controller/:action', function ($controller, $action) use ($app) {
 $app->run();
 
 /**
- * Método de padronização do retorno
+ * Mï¿½todo de padronizaï¿½ï¿½o do retorno
  */
 function getExecucao($bolPost = false, $controller, $action, $parameter = null){
     $arrDadosRetorno    = array();
@@ -60,21 +60,21 @@ function getExecucao($bolPost = false, $controller, $action, $parameter = null){
             // instanciando o controlador
             include_once "./control/".ucfirst($controller).".php";
             $classe = new $controller();
-            // Executando o método
+            // Executando o mï¿½todo
             $arrDadosRetorno = call_user_func_array(array($classe, "post_" . $action), array($request));
         }else{
             // Instanciando as libs
             include_once "./control/".ucfirst($controller).".php";
             $classe = new $controller();
-            // Executando o método
+            // Executando o mï¿½todo
             $arrDadosRetorno = call_user_func_array(array($classe, "get_" . $action), array($parameter));
         }
         $bolRetorno = true;
     } catch (Exception $e) {
         // Se o erro for severo ou que deve ser enviado para analise
-        if(in_array($e->getCode(), array(9999, 8))){
+        if(in_array($e->getCode(), array(9999, 8, 2))){
             // Criando o retorno
-            $strMensagem = "Controlador: {$controller} - Ação: {$action} ";
+            $strMensagem = "Controlador: {$controller} - Aï¿½ï¿½o: {$action} ";
             if($bolPost) $strMensagem .= " Dados POST: " . json_encode($_POST);
             $strMensagem .= " Dados Retorno: " . json_encode($arrDadosRetorno);
             $strMensagem .= " Mensagem: " . $e->getMessage();
@@ -116,9 +116,9 @@ function gerarLog($arrRetorno, $parametros){
     $strParametros     .= " - Retorno: " . json_encode($arrRetorno);
     $strMensagem    = "Data: {$strData} - {$strParametros} \r\n";
     // Abre ou cria o arquivo bloco1.txt
-    // "a" representa que o arquivo é aberto para ser escrito
+    // "a" representa que o arquivo ï¿½ aberto para ser escrito
     $fp = @fopen("./log.txt", "a+");
-    // Escreve a mensagem passada através da variável $msg
+    // Escreve a mensagem passada atravï¿½s da variï¿½vel $msg
     $escreve = @fwrite($fp, $strMensagem);
     // Fecha o arquivo
     @fclose($fp);
