@@ -143,18 +143,21 @@ class daoConsulta extends Dao {
      * @throws Exception
      * @return boolean
      */
-    function confirmarRecebimento(stdClass &$objAgendamento){
+    function confirmarAgendamento(stdClass &$objAgendamento){
         try {
-            $objAgendamento->data_recebimento = Utilidades::formatarDataPraBanco($objAgendamento->data_recebimento);
+            $objAgendamento->data_confirmada = Utilidades::formatarDataPraBanco($objAgendamento->data_confirmada);
             $this->iniciarTransacao();
-            $this->sql ="UPDATE exame
-                        SET data_recebimento = :data_recebimento
+            $this->sql ="UPDATE solicitacao_agendamento
+                        SET data_confirmada = :data_confirmada,
+                            usuario_responsavel = :usuario_id,
+                            aceito = 1
                         WHERE 
-                              id = :id ";
+                           id = :id ";
             // Preparando a consulta
             $this->prepare();
             // Realizando os bids para segurança
-            $this->bind("data_recebimento", $objAgendamento->data_recebimento);
+            $this->bind("data_confirmada", $objAgendamento->data_confirmada);
+            $this->bind("usuario_id", $objAgendamento->usuario_id);
             $this->bind("id", $objAgendamento->id);
             // Recuperando o id do exame cadastrado
             $this->executar();
@@ -165,40 +168,34 @@ class daoConsulta extends Dao {
     }
     
     /**
-     * Método que irá retornar o exame pelo id
+     * Método que irá retornar o agendamento pelo id
      * 
-     * @param unknown $intIdExame
+     * @param unknown $intIdAgendamento
      * @return mixed
      */
-    function getExamePorId($intIdExame){
+    function getAgendamentoPorId($intIdAgendamento){
         try {
-            $intIdExame = (int) $intIdExame;
+            $intIdAgendamento = (int) $intIdAgendamento;
             // Filtrando todos os cancers
             $this->sql ="SELECT
-                        	e.*,
-                        	a.descricao as area,
-                        	tp.descricao as tipo_exame,
-                        	u.nome,
-                        	u.contato,
-                        	u.contato_dois,
-                        	u.numero_pep,
-                        	CASE
-                        	  WHEN data_recebimento IS NULL THEN 0
-                        	  ELSE 1
-                        	END AS situacao,
-                        	TIMESTAMPDIFF(DAY,data_exame,
-                        		(CASE
-                        		  WHEN data_recebimento IS NOT NULL THEN data_recebimento
-                        		  ELSE NOW()
-                        		END)
-                        	) dias_atraso
-                         FROM exame e
-                         INNER JOIN area a on a.id = e.area_id
-                         INNER JOIN tipo_exame tp on tp.id = e.tipo_exame_id
-                         INNER JOIN usuario u on u.id = e.usuario_id
-                         WHERE e.id = :id ";
+                          s.*,                    
+                          a.descricao area,
+                          u.nome,
+                          u.numero_pep,
+                          resp.nome responsavel,
+                          (CASE WHEN aceito = 0 THEN 'Pendente'
+                            WHEN aceito = 1 THEN 'Agendado'
+                            ELSE 'Rejeitada'
+                            END
+                            ) as situacao
+                        FROM
+                          solicitacao_agendamento s
+                        JOIN usuario u on u.id =  s.usuario_id
+                        LEFT JOIN usuario resp on resp.id =  s.usuario_responsavel
+                        JOIN area a on a.id = s.area_id
+                        WHERE s.id = :id";
             $this->prepare();
-            $this->bind("id", $intIdExame);
+            $this->bind("id", $intIdAgendamento);
             $this->executar();
             // Retornando a lista de cancer
             return $this->buscarDoResultadoAssoc(true);
@@ -232,8 +229,8 @@ class daoConsulta extends Dao {
             // Para cada agendamento 
             foreach($arrAgendamentos as $intChave => $exames){
                 // Formatando as fatas
-                $arrAgendamentos[$intChave]["data_solicitada"] = Utilidades::formatarDataPraBr($exames["data_solicitada"]);
-                $arrAgendamentos[$intChave]["data_agendamento"] = Utilidades::formatarDataPraBr($exames["data_agendamento"], 'Y-m-d H:i:s');
+                $arrAgendamentos[$intChave]["data_solicitada"]  = Utilidades::formatarDataPraBr($exames["data_solicitada"]);
+                $arrAgendamentos[$intChave]["data_agendamento"] = Utilidades::formatarDataPraBr($exames["data_agendamento"]);
                 // Se a data de confirmação não for vazia
                 if(!empty($arrAgendamentos["data_confirmada"]) && $arrAgendamentos["data_confirmada"] != null){
                     $arrAgendamentos[$intChave]["data_confirmada"] = Utilidades::formatarDataPraBr($exames["data_confirmada"]);
@@ -246,69 +243,187 @@ class daoConsulta extends Dao {
     }
 
     /**
-     * M�todo que ir� retornar os exames filtrados
+     * Método que irá retornar os agendamentos filtrados
      * 
-     * @param int $intIdArea,$intIdTipoExame,$intPep
      * @throws Exception
      * @return mixed
      */
-    function filtrarExames(array $arrDados){
+    function filtrarAgendamento(array $arrDados){
         //filtra os exames de um determinado pep
         try{
             $this->sql ="SELECT
-                            e.*,
-                            u.nome,
-                            TIMESTAMPDIFF(DAY,data_exame,
-                            (CASE
-                              WHEN data_recebimento IS NOT NULL THEN data_recebimento
-                              ELSE NOW()
-                            END)
-                            ) dias_atraso
-                        FROM exame e
-                        INNER JOIN usuario u ON e.usuario_id = u.id
+                          s.*,
+                          u.nome,
+                          u.numero_pep,
+                          (CASE
+                             WHEN aceito = 0 THEN 'Pendente'
+                             WHEN aceito = 1 THEN 'Agendado'
+                             ELSE 'Rejeitada'
+                          END) as situacao,
+                          (CASE
+                             WHEN data_confirmada IS NOT NULL THEN data_confirmada
+                             ELSE data_solicitada
+                          END) as data_solicitada_banco
+                        FROM solicitacao_agendamento s
+                        INNER JOIN usuario u ON s.usuario_id = u.id
                         WHERE
                              1 = 1  ";
             
             /***** FILTROS CASO INFORMADOS ******/
             if(isset($arrDados["area_id"]) && !empty($arrDados["area_id"]))
-                $this->sql .= " AND e.area_id = :area_id";
+                $this->sql .= " AND s.area_id = :area_id";
             
             if(isset($arrDados["situacao"]) && $arrDados["situacao"] != ""){
-                $strSituacao = ($arrDados["situacao"] == 0) ? " is null " : " is not null ";
-                $this->sql .= " AND data_recebimento {$strSituacao}";
+                $arrDados["situacao"] = (int) $arrDados["situacao"];
+                $this->sql .= " AND aceito = {$arrDados["situacao"]}";
             }
-            
-            if(isset($arrDados["tipo_exame_id"]) && !empty($arrDados["tipo_exame_id"]))
-                $this->sql .= " AND e.tipo_exame_id = :tipo_exame_id";
+            if(isset($arrDados["data_solicitada_inicio"]) && !empty($arrDados["data_solicitada_inicio"])){
+                $this->sql .= " AND (
+                                    s.data_solicitada BETWEEN '".Utilidades::formatarDataPraBanco($arrDados["data_solicitada_inicio"])."' AND '".Utilidades::formatarDataPraBanco($arrDados["data_solicitada_fim"])."'
+                                    OR
+                                    s.data_confirmada BETWEEN '".Utilidades::formatarDataPraBanco($arrDados["data_solicitada_inicio"])."' AND '".Utilidades::formatarDataPraBanco($arrDados["data_solicitada_fim"])."'
+                                )";
+            }
+                
             
             if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
                 $this->sql .= " AND u.numero_pep= :numero_pep";
             
             $this->sql .= "   
                   ORDER BY
-                    TIMESTAMPDIFF(DAY,data_exame,
-                    (CASE
-                        WHEN data_recebimento IS NOT NULL THEN data_recebimento
-                        ELSE NOW()
-                        END)
-                    ) DESC";
+                    data_confirmada DESC,
+                    data_solicitada DESC";
             // PREPARANDO A CONSULTA
             $this->prepare();
             /***** BIND NOS VALORES DOS FILTROS ******/
             if(isset($arrDados["area_id"]) && !empty($arrDados["area_id"]))
                 $this->bind("area_id", $arrDados["area_id"]);
-            
-            if(isset($arrDados["tipo_exame_id"]) && !empty($arrDados["tipo_exame_id"]))
-                 $this->bind("tipo_exame_id", $arrDados["tipo_exame_id"]);
         
             if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
                  $this->bind("numero_pep", $arrDados["pep"]);
             // EXECUTANDO A CONSULTA
             $this->executar();
             $arrAgendamentos = $this->buscarDoResultadoAssoc();
-            if(empty($arrAgendamentos)) throw new Exception("Exames não foram encontrados!");
+            if(empty($arrAgendamentos)) throw new Exception("Agendamentos não foram encontrados!");
             // Retornando os exames filtrados
             return $arrAgendamentos;
-        } catch (Exception $ex) { throw new Exception($ex->getMessage()); }
+        } catch (Exception $ex) { throw new Exception($ex->getMessage(), 9999); }
     } 
+    
+    /**
+     * Método que irá retornar a lista de agendamentos agrupados por data, area e usuário
+     * @throws Exception
+     * @return unknown[]|mixed[]
+     */
+    function filtrarAgendamentoGrafico(){
+        try{
+            // FIltrando agendamenros por área
+            $this->sql ="SELECT
+                            count(s.id) total,
+                            a.descricao
+                        FROM
+                            solicitacao_agendamento s
+                        INNER JOIN area a on a.id = s.area_id
+                        WHERE ACEITO = 1
+                        GROUP BY a.descricao";
+            // PREPARANDO A CONSULTA
+            $this->prepare();
+            $this->executar();
+            $arrAgendamentoPorAera = $this->buscarDoResultadoAssoc();
+            
+            // FIltrando agendamenros por mês / ano
+            $this->sql ="SELECT
+                          count(s.id) total,
+                          CONCAT(EXTRACT(YEAR FROM s.data_confirmada),'-',EXTRACT(MONTH FROM s.data_confirmada), '-01')  mes
+                        FROM
+                          solicitacao_agendamento s
+                        WHERE
+                            s.data_confirmada > DATE_SUB(now(), INTERVAL 6 MONTH)
+                            AND ACEITO = 1
+                        group by mes";
+            // PREPARANDO A CONSULTA
+            $this->prepare();
+            $this->executar();
+            $arrAgendamentoPorData = $this->buscarDoResultadoAssoc();
+            
+            // FIltrando agendamenros por usuário
+            $this->sql ="SELECT
+                          count(s.id) total,
+                          u.nome
+                        FROM
+                          solicitacao_agendamento s
+                        INNER JOIN usuario u on u.id = s.usuario_id
+                        WHERE ACEITO = 1
+                        group by u.nome";
+            // PREPARANDO A CONSULTA
+            $this->prepare();
+            $this->executar();
+            $arrAgendamentoPorUsuario = $this->buscarDoResultadoAssoc();
+            
+            // retornando os dados dos gráficos
+            return array(
+                            "arrAgendamentoPorAera"=>$arrAgendamentoPorAera,
+                            "arrAgendamentoPorData"=>$arrAgendamentoPorData,
+                            "arrAgendamentoPorUsuario"=>$arrAgendamentoPorUsuario
+                        );
+            
+        } catch (Exception $ex) { throw new Exception($ex->getMessage(), 9999); }
+    }
+    
+    /**
+     * Informando qual o usuário é responsável pelo agendamento
+     * 
+     * @param int $intIdUsuario
+     * @param int $intIdAgendamento
+     * @throws Exception
+     * @return boolean
+     */
+    function responsavelAgendamento($intIdUsuario, $intIdAgendamento){
+        try {
+            $this->iniciarTransacao();
+            $this->sql ="UPDATE solicitacao_agendamento
+                        SET usuario_responsavel = :usuario_responsavel
+                        WHERE
+                              id = :id ";
+            // Preparando a consulta
+            $this->prepare();
+            // Realizando os bids para segurança
+            $this->bind("usuario_responsavel", $intIdUsuario);
+            $this->bind("id", $intIdAgendamento);
+            // atualizando o agendamento
+            $this->executar();
+            $this->comitarTransacao();
+            // Verificando se houve alterações
+            return ($this->rowCount() > 0);
+        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage(), 9999); }
+    }
+    
+    /**
+     * Método que irá realizar a recusa do agendamento
+     * 
+     * @param unknown $intIdUsuario
+     * @param unknown $intIdAgendamento
+     * @throws Exception
+     * @return boolean
+     */
+    function recusarAgendamento($intIdUsuario, $intIdAgendamento){
+        try {
+            $this->iniciarTransacao();
+            $this->sql ="UPDATE solicitacao_agendamento
+                        SET usuario_responsavel = :usuario_responsavel,
+                            aceito = 2
+                        WHERE
+                              id = :id ";
+            // Preparando a consulta
+            $this->prepare();
+            // Realizando os bids para segurança
+            $this->bind("usuario_responsavel", $intIdUsuario);
+            $this->bind("id", $intIdAgendamento);
+            // atualizando o agendamento
+            $this->executar();
+            $this->comitarTransacao();
+            // Verificando se houve alterações
+            return ($this->rowCount() > 0);
+        } catch (Exception $ex) {$this->desfazerTransacao(); throw new Exception($ex->getMessage(), 9999); }
+    }
 }
