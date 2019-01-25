@@ -28,7 +28,8 @@ class daoExame extends Dao {
             // Filtrando todos os cancers
             $this->sql ="SELECT
                           *
-                        FROM area";
+                        FROM area
+                        WHERE excluido = 0";
             $this->prepare();
             $this->executar();
             // Retornando a lista de cancer

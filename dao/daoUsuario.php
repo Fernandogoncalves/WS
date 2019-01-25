@@ -207,7 +207,7 @@ class daoUsuario extends Dao {
             if(isset($arrDados["situacao"]) && $arrDados["situacao"] != "")
                 $this->sql .= " AND ativo = :situacao";
             
-            if(isset($arrDados["numero_pep"]) && !empty($arrDados["numero_pep"]))
+            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
                 $this->sql .= " AND numero_pep = :numero_pep";
             
             $this->prepare();
@@ -219,8 +219,9 @@ class daoUsuario extends Dao {
             if(isset($arrDados["situacao"]) && $arrDados["situacao"] != "")
                 $this->bind("situacao", $arrDados["situacao"]);
                 
-            if(isset($arrDados["numero_pep"]) && !empty($arrDados["numero_pep"]))
-                $this->bind("numero_pep", $arrDados["numero_pep"]);
+            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
+                $this->bind("numero_pep", $arrDados["pep"]);
+            
             $this->executar();
             return $this->buscarDoResultadoAssoc();
         } catch (Exception $ex) { }
