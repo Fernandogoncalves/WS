@@ -209,10 +209,10 @@ class Usuario {
             "headings" => array("en" => "Cadastro de Paciente Pendente"),
             'contents' => array("en" => "Paciente com o nº do PEP: " . $objPaciente->pep),
             'data' => array(
-                                "foo"=>"bar",
-                                "acao"=>Constantes::$ULR_EDITAR_USUARIO_NOTIFICACAO,
-                                "parametros"=>array("usuarioId"=>$objPaciente->id)
-                            )
+                            "foo"=>"bar",
+                            "acao"=>Constantes::$ULR_EDITAR_USUARIO_NOTIFICACAO,
+                            "parametros"=>array("usuarioId"=>$objPaciente->id)
+                        )
         );
         // Enviando a notificação
         $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
@@ -409,6 +409,7 @@ class Usuario {
         if(empty($objUsuario->cpf)) throw new Exception("CPF Não Informado!");
         if(empty($objUsuario->email)) throw new Exception("E-mail Não Informado!");
         if(!Utilidades::validaCPF($objUsuario->cpf)) throw new Exception("CPF invalido!");
+        if(preg_match("/[^A-Za-z\s]/", $objUsuario->nome)) throw new Exception("Nome inválido!");
         if(!Utilidades::validarEmail($objUsuario->email)) throw new Exception("E-mail invalido!");
         if(empty($objUsuario->nome)) throw new Exception("Nome Não Informado!");
         

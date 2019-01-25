@@ -140,7 +140,7 @@ class Consulta {
             'include_player_ids' => $arrIds,
             "headings" => array("en" => "Consulta Marcada"),
             'contents' => array("en" => "Olá, {$objPaciente->nome}! Este é um  lembrete para avisar que faltam cinco dias para sua consulta marcada para a data {$objAgendamento->data_confirmada}!"),
-            'send_after' => "{$strDataLembrete1} 12:00:00 GMT-3",
+            'send_after' => "{$strDataLembrete2} 12:00:00 GMT-3",
             'data' => array(
                 "foo"=>"bar",
                 "acao"=>Constantes::$ULR_MEUS_EXAMES_AGENDAMENTOS

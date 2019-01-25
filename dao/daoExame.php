@@ -29,7 +29,13 @@ class daoExame extends Dao {
             $this->sql ="SELECT
                           *
                         FROM area
-                        WHERE excluido = 0";
+                        WHERE
+                            1 = 1
+                            ";
+            // Caso haja a limitação para buscar somente algumas áreas            
+            if(isset($_GET["todos"]) && $_GET["todos"] != "true")
+                $this->sql .= " AND excluido = 0";
+                
             $this->prepare();
             $this->executar();
             // Retornando a lista de cancer
