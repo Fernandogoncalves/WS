@@ -32,7 +32,6 @@ class Conexao  {
             self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             self::$instance->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_EMPTY_STRING);
         }
-        
         return self::$instance;
    }
  
@@ -46,7 +45,7 @@ class Conexao  {
        return self::$OciInstance;
    }
 
-      private static function obterConfigOracle(){
+   private static function obterConfigOracle(){
        self::$config = new ConfigInfra();                   
        $ini = self::$config->getArquivoIni();       
        self::$ip = $ini['oracle']['ip'];

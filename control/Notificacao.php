@@ -89,6 +89,32 @@ class Notificacao {
             "headings" => array("en" => $objNotificacao->titulo),
             'contents' => array("en" => $objNotificacao->corpo)
         );
+        if(isset($objNotificacao->notificacao_criacao_id) && !empty($objNotificacao->notificacao_criacao_id)){
+            $arrDadosNotificacao['data'] = array(
+                                            "foo"=>"bar",
+                                            "acao"=> ($objNotificacao->envio_paciente == 1) 
+                                                     // Caso seja uma notificação de um paciente para equipemérica 
+                                                     ? Constantes::$ULR_THREAD_NOTIFICAAO_EQUIPE_MEDICA 
+                                                    //  Caso seja uma notificação da equipemérica para um paciente
+                                                     : Constantes::$ULR_THREAD_NOTIFICAAO_PACIENTE,
+                                            "parametros"=>array("notificacaoId"=>$objNotificacao->notificacao_criacao_id)
+                                        );
+        }
+        
+        if(isset($objNotificacao->envio_paciente) && $objNotificacao->envio_paciente == 1 &&
+            (!isset($objNotificacao->notificacao_criacao_id) || empty($objNotificacao->notificacao_criacao_id))){
+                $arrDadosNotificacao['data'] = array(
+                    "foo"=>"bar",
+                    "acao"=> ($objNotificacao->envio_paciente == 1)
+                    // Caso seja uma notificação de um paciente para equipemérica
+                    ? Constantes::$ULR_THREAD_NOTIFICAAO_EQUIPE_MEDICA
+                    //  Caso seja uma notificação da equipemérica para um paciente
+                    : Constantes::$ULR_THREAD_NOTIFICAAO_PACIENTE,
+                    "parametros"=>array("notificacaoId"=>$objNotificacao->id)
+                );
+        }
+        
+        
         // Enviando a notificação
         $objRerotno = Utilidades::enviarNotificacao($arrDadosNotificacao);
         // Retornando sucesso
@@ -141,9 +167,10 @@ class Notificacao {
         // Validando os dados postados
         if(empty($_GET["intIdUsuario"])) throw new Exception("Id Não Informado!");
         $intIdUsuario = (int) $_GET["intIdUsuario"];
-        // Valida��es
+        $intIdNotificacao = (int) @$_GET["intIdNotificacao"];
+        // Validações
         if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");
-        $this->objDaoNotificacao->notificacoesLidas($intIdUsuario);
+        $this->objDaoNotificacao->notificacoesLidas($intIdUsuario, $intIdNotificacao);
         return true;
     }
     
@@ -167,8 +194,31 @@ class Notificacao {
             $arrNotificacao["filtro"] = (array) json_decode($arrNotificacao["filtro"]);
             // Formatando o retorno
             $arrNotificacao["titulo"]        = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".$arrNotificacao["titulo"]."</a>";
-            $arrNotificacao["data_envio"]    = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'><span class='esconder-informacao'>".$arrNotificacao["id"]."</span> " . Utilidades::formatarDataPraBr($arrNotificacao["data_envio"])."</a>";
+            $arrNotificacao["data_envio"]    = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'><span class='esconder-informacao'>".$arrNotificacao["id"]."</span> " . Utilidades::formatarDataPraBr($arrNotificacao["data_envio"], "Y-m-d H:i:s")."</a>";
             $arrNotificacao["total"]         = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".$arrNotificacao["filtro"]["total"]."</a>";
+            $arrNotificacoes[$inChave] = $arrNotificacao;
+        }
+        // Retornando a lista de noticações filtradas
+        return $arrNotificacoes;
+    }
+    
+    public function post_filtrarRespostasNotificacao(){
+        // Criando o dao
+        $this->objDaoNotificacao = new daoNotificacao();
+        // Validando os filtros
+        if(empty($_POST["filtroBusca"])) throw new Exception("Dados Não Informados!");
+        // Recuperando os filtros
+        $arrFiltro = json_decode($_POST["filtroBusca"]);
+        // Buscando as notificações com os filtros recuperad
+        $arrNotificacoes = $this->objDaoNotificacao->filtrarNotificacoesResposta((array) $arrFiltro);
+        if(empty($arrNotificacoes)) throw new Exception("Nenhuma Notificação Encontrada!");
+        // formatando as notificações
+        foreach($arrNotificacoes as $inChave => $arrNotificacao){
+            $arrNotificacao["filtro"] = (array) json_decode($arrNotificacao["filtro"]);
+            // Formatando o retorno
+            $arrNotificacao["paciente"]        = "<a class='links link '  href='".Constantes::$ULR_LISTA_NOTIFICAAO_EQUIPE_MEDICA.$arrNotificacao["id"]."'>".$arrNotificacao["nome"]."(".$arrNotificacao["numero_pep"].")"."</a>";
+            $arrNotificacao["data_envio"]    = "<a class='links link '    href='".Constantes::$ULR_LISTA_NOTIFICAAO_EQUIPE_MEDICA.$arrNotificacao["id"]."'><span class='esconder-informacao'>".$arrNotificacao["id"]."</span> " . Utilidades::formatarDataPraBr($arrNotificacao["data_envio"], "Y-m-d H:i:s")."</a>";
+            $arrNotificacao["titulo"]         = "<a class='links link '   href='".Constantes::$ULR_LISTA_NOTIFICAAO_EQUIPE_MEDICA.$arrNotificacao["id"]."'>".$arrNotificacao["titulo"]."</a>";
             $arrNotificacoes[$inChave] = $arrNotificacao;
         }
         // Retornando a lista de noticações filtradas
@@ -214,10 +264,25 @@ class Notificacao {
         }
         
         // Formatando as datas
-        $objNotificacao->data_envio = Utilidades::formatarDataPraBr($objNotificacao->data_envio);
+        $this->formatarDataNotificação($objNotificacao);
         
+        // Recuperando as notificações fihas
+        $objNotificacao->filhos = $this->objDaoNotificacao->getNotificacaoPorIdPai($objNotificacao->id);
+        
+        if(!empty($objNotificacao->filhos)){
+            foreach($objNotificacao->filhos as $intChave => $arrObjFilho){
+                $objNotificacaoFilhio = (object) $arrObjFilho;
+                $this->formatarDataNotificação($objNotificacaoFilhio);
+                $objNotificacao->filhos[$intChave] =  $objNotificacaoFilhio;
+            }
+        }
         // Retornando a notificação
         return $objNotificacao;
+    }
+    
+    public function formatarDataNotificação(&$objNotificacao){
+        // Formatando as datas
+        $objNotificacao->data_envio = Utilidades::formatarDataPraBr($objNotificacao->data_envio, 'Y-m-d H:i:s', 'd/m/Y H:i:s');
     }
     
 }

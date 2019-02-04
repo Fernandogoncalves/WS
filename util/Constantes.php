@@ -17,5 +17,8 @@ class Constantes {
     static $ULR_AGENDAMENTO_CONSULTA                = "app.detalhe-agendamento";
     static $ULR_MEUS_EXAMES_AGENDAMENTOS            = "app.meus-agendamentos";
     static $ULR_AGENDAMENTO_CONSULTA_DETALHE        = "#/app/detalhe-agendamento/";
+    static $ULR_THREAD_NOTIFICAAO_PACIENTE          = "app.thread-notificacao";
+    static $ULR_THREAD_NOTIFICAAO_EQUIPE_MEDICA     = "app.thread-notificacao-equipe";
+    static $ULR_LISTA_NOTIFICAAO_EQUIPE_MEDICA      = "#/app/thread-notificacao-equipe/";
     
 }

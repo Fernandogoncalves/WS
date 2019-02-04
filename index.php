@@ -74,8 +74,9 @@ function getExecucao($bolPost = false, $controller, $action, $parameter = null){
         // Se o erro for severo ou que deve ser enviado para analise
         if(in_array($e->getCode(), array(9999, 8, 2))){
             // Criando o retorno
-            $strMensagem = "Controlador: {$controller} - A��o: {$action} ";
+            $strMensagem = "Controlador: {$controller} - Ação: {$action} ";
             if($bolPost) $strMensagem .= " Dados POST: " . json_encode($_POST);
+            else $strMensagem .= " Dados GET: " . json_encode($_GET);
             $strMensagem .= " Dados Retorno: " . json_encode($arrDadosRetorno);
             $strMensagem .= " Mensagem: " . $e->getMessage();
             $strMensagem .= " Caminho: " . $e->getTraceAsString();

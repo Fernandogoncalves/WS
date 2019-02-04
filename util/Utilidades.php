@@ -139,10 +139,14 @@ class Utilidades {
      * 
      * @param unknown $strData
      * @param string $strFormt
+     * @param string $stFormatReturn
      */
-    static function formatarDataPraBr($strData, $strFormt = 'Y-m-d'){
+    static function formatarDataPraBr($strData, $strFormt = 'Y-m-d', $stFormatReturn = null){
         $date = DateTime::createFromFormat($strFormt, $strData);
-        return $date->format('d/m/Y');
+        if($stFormatReturn != null)
+            return $date->format($stFormatReturn);
+        else
+            return $date->format('d/m/Y');
     }
     
     /**

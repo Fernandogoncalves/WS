@@ -84,10 +84,12 @@ class Dao {
     }
 
     protected function buscarDoResultadoAssoc($bolUnico = false) {
+        $arrRetorno = array();
         if($bolUnico)
-            return $this->stmtPDO->fetch(PDO::FETCH_ASSOC);
+            $arrRetorno =  $this->stmtPDO->fetch(PDO::FETCH_ASSOC);
         else
-            return $this->stmtPDO->fetchAll(PDO::FETCH_ASSOC);
+            $arrRetorno =  $this->stmtPDO->fetchAll(PDO::FETCH_ASSOC);
+        return $arrRetorno;
     }
 
     protected function iniciarTransacao() {
