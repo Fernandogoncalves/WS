@@ -92,6 +92,15 @@ class daoUsuario extends Dao {
                     $this->bind("ultimo_acesso",    date("Y-m-d H:i:s"));
                     $this->bind("id",               $arrRetorno["id"]);
                     $this->executar();
+                    
+                    // Atualizando as informações do ususário
+                    $this->sql ="UPDATE usuario
+                         SET codigo_onesignal = null
+                         WHERE id <> :id && codigo_onesignal = :codigo_onesignal";
+                    $this->prepare();
+                    $this->bind("codigo_onesignal", $arrDados["strCodigoOnesignal"]);
+                    $this->bind("id",               $arrRetorno["id"]);
+                    $this->executar();
                 } catch (Exception $e) { }
                
                 

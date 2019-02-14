@@ -156,7 +156,7 @@ class Exame {
         if(!isset($objExame->data_recebimento))                        throw new Exception("Data Recebimento Não Informada!");
         if(empty($objExame->usuario_id))                               throw new Exception("Usuário Não Informado!");
         if(!Utilidades::validarData($objExame->data_recebimento))      throw new Exception("Data Recebimento Inválida!");
-        if(!Utilidades::diffData($objExame->data_exame, Utilidades::formatarDataPraBanco($objExame->data_recebimento)))         throw new Exception("Data Do Recebimento Tem que Ser Menor que a Coleta!");
+        if(!Utilidades::diffData($objExame->data_exame, Utilidades::formatarDataPraBanco($objExame->data_recebimento)))         throw new Exception("Data Do Recebimento Tem que Ser Maior que a Coleta!");
         //validando data do recebimento
         if(!Utilidades::diffData(Utilidades::formatarDataPraBanco($objExame->data_recebimento), date("Y-m-d")))
             throw new Exception("Data de Recebimento Tem que Ser Menor ou Igual a Data de Hoje!");

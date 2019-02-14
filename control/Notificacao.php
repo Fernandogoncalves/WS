@@ -131,7 +131,7 @@ class Notificacao {
         // Valida��o dos dados de exame
         if(empty($objNotificacao->titulo))      throw new Exception("Título da notificação não informado!");
         if(empty($objNotificacao->corpo))       throw new Exception("Corpo da notificação não informado!"); 
-        if(strlen($objNotificacao->corpo) > 144)throw new Exception("Corpo da notificação não informado!");
+        if(strlen($objNotificacao->corpo) > 150)throw new Exception("Corpo da notificação maior que 145 caracteres!");
     } 
     
     /**
@@ -194,8 +194,8 @@ class Notificacao {
             $arrNotificacao["filtro"] = (array) json_decode($arrNotificacao["filtro"]);
             // Formatando o retorno
             $arrNotificacao["titulo"]        = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".$arrNotificacao["titulo"]."</a>";
-            $arrNotificacao["data_envio"]    = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'><span class='esconder-informacao'>".$arrNotificacao["id"]."</span> " . Utilidades::formatarDataPraBr($arrNotificacao["data_envio"], "Y-m-d H:i:s")."</a>";
-            $arrNotificacao["total"]         = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".$arrNotificacao["filtro"]["total"]."</a>";
+            $arrNotificacao["data_envio"]    = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'><span class='esconder-informacao'>".$arrNotificacao["data_envio"]."</span> " . Utilidades::formatarDataPraBr($arrNotificacao["data_envio"], "Y-m-d H:i:s")."</a>";
+            $arrNotificacao["total"]         = "<a class='links link '  href='".Constantes::$ULR_DETALHE_NOTIFICACAO.$arrNotificacao["id"]."'>".@$arrNotificacao["filtro"]["total"]."</a>";
             $arrNotificacoes[$inChave] = $arrNotificacao;
         }
         // Retornando a lista de noticações filtradas
@@ -217,7 +217,7 @@ class Notificacao {
             $arrNotificacao["filtro"] = (array) json_decode($arrNotificacao["filtro"]);
             // Formatando o retorno
             $arrNotificacao["paciente"]        = "<a class='links link '  href='".Constantes::$ULR_LISTA_NOTIFICAAO_EQUIPE_MEDICA.$arrNotificacao["id"]."'>".$arrNotificacao["nome"]."(".$arrNotificacao["numero_pep"].")"."</a>";
-            $arrNotificacao["data_envio"]    = "<a class='links link '    href='".Constantes::$ULR_LISTA_NOTIFICAAO_EQUIPE_MEDICA.$arrNotificacao["id"]."'><span class='esconder-informacao'>".$arrNotificacao["id"]."</span> " . Utilidades::formatarDataPraBr($arrNotificacao["data_envio"], "Y-m-d H:i:s")."</a>";
+            $arrNotificacao["data_envio"]    = "<a class='links link '    href='".Constantes::$ULR_LISTA_NOTIFICAAO_EQUIPE_MEDICA.$arrNotificacao["id"]."'><span class='esconder-informacao'>".$arrNotificacao["data_envio"]."</span> " . Utilidades::formatarDataPraBr($arrNotificacao["data_envio"], "Y-m-d H:i:s")."</a>";
             $arrNotificacao["titulo"]         = "<a class='links link '   href='".Constantes::$ULR_LISTA_NOTIFICAAO_EQUIPE_MEDICA.$arrNotificacao["id"]."'>".$arrNotificacao["titulo"]."</a>";
             $arrNotificacoes[$inChave] = $arrNotificacao;
         }

@@ -200,9 +200,9 @@ class Consulta {
                 throw new Exception("Data de consulta fora do limite, favor selecionar um período de 2 (dois) meses!");
             
         if(!Utilidades::diffData(
-            Utilidades::formatarDataPraBanco(date('d/m/Y', strtotime('+5 day'))),
+            Utilidades::formatarDataPraBanco(date('d/m/Y', strtotime('+20 day'))),
             Utilidades::formatarDataPraBanco($objAgendamento->data_solicitada)))
-            throw new Exception("Data da Consulta tem que ser maior ou igual a ".date('d/m/Y', strtotime('+5 day'))."!");
+            throw new Exception("Data da Consulta tem que ser maior ou igual a ".date('d/m/Y', strtotime('+20 day'))."!");
     } 
     
     /**

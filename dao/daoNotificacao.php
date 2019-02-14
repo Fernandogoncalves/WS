@@ -115,7 +115,7 @@ class daoNotificacao extends Dao {
             // Realizando os binds para segurança
             $this->bind("data_envio", date("Y-m-d H:i:s"));
             $this->bind("titulo", $objNotificacao->titulo);
-            $this->bind("mensagem", $objNotificacao->corpo);
+            $this->bind("mensagem", substr($objNotificacao->corpo, 0, 145));
             $this->bind("filtro", $objNotificacao->filtro);
             
             $this->bind("usuario_criacao_id", $objNotificacao->usuario_criacao_id);
@@ -192,7 +192,7 @@ class daoNotificacao extends Dao {
             if(isset($arrDados["cidade"]) && !empty($arrDados["cidade"]))
                 $this->sql .= " AND cidade = :cidade";
             
-            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
+            if(isset($arrDados["pep"]) && !empty($arrDados["pep"]) && strlen($arrDados["pep"]) > 5)
                 $this->sql .= " AND numero_pep = " . ((int) $arrDados["pep"]);
             
             if(isset($arrDados["cancer_id"]) && !empty($arrDados["cancer_id"])){
@@ -204,7 +204,7 @@ class daoNotificacao extends Dao {
                     $this->sql .= " AND cancer_id in ( ".implode(",", $arrDados["cancer_id"])." ) ";
                 }
             }
-                
+              
             // PREPARANDO A CONSULTA
             $this->prepare();
             
@@ -351,7 +351,7 @@ class daoNotificacao extends Dao {
             
             /***** FILTROS CASO INFORMADOS ******/
             if(isset($arrDados["data_envio"]) && !empty($arrDados["data_envio"]))
-                $this->sql .= " AND data_envio = :data_envio";
+                $this->sql .= " AND DATE_FORMAT(data_envio, '%Y-%m-%d') = :data_envio";
             
             if(isset($arrDados["titulo"]) && !empty($arrDados["titulo"]))
                 $this->sql .= " AND titulo LIKE :titulo";
@@ -391,7 +391,7 @@ class daoNotificacao extends Dao {
     
             /***** FILTROS CASO INFORMADOS ******/
             if(isset($arrDados["data_recebimento"]) && !empty($arrDados["data_recebimento"]))
-                $this->sql .= " AND data_envio = :data_recebimento";
+                $this->sql .= " AND DATE_FORMAT(data_envio, '%Y-%m-%d') = :data_envio ";
     
             if(isset($arrDados["pep"]) && !empty($arrDados["pep"]))
                 $this->sql .= " AND u.numero_pep = :pep";
