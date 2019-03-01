@@ -232,7 +232,7 @@ class daoConsulta extends Dao {
                 $arrAgendamentos[$intChave]["data_solicitada"]  = Utilidades::formatarDataPraBr($exames["data_solicitada"]);
                 $arrAgendamentos[$intChave]["data_agendamento"] = Utilidades::formatarDataPraBr($exames["data_agendamento"]);
                 // Se a data de confirmação não for vazia
-                if(!empty($arrAgendamentos["data_confirmada"]) && $arrAgendamentos["data_confirmada"] != null){
+                if($exames["data_confirmada"] != null){
                     $arrAgendamentos[$intChave]["data_confirmada"] = Utilidades::formatarDataPraBr($exames["data_confirmada"]);
                     $arrAgendamentos[$intChave]["data_solicitada"] = Utilidades::formatarDataPraBr($exames["data_confirmada"]);
                 }

@@ -221,7 +221,7 @@ class Consulta {
         if($intIdUsuario == 0) throw new Exception("Usuário Inválido!");
         // Listando os exames do paciente
         $arrAgendamentos = $this->objDaoConsulta->listarAgendamentosDoPaciente($intIdUsuario);
-        if(empty($arrAgendamentos)) throw new Exception("Agendamentos não foram Encontrados!");        
+        if(empty($arrAgendamentos)) throw new Exception("Agendamentos não foram Encontrados!"); 
         // Retornando a lista de exames do paciente
         return $arrAgendamentos;
     }

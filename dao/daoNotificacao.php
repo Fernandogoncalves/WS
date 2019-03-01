@@ -115,7 +115,7 @@ class daoNotificacao extends Dao {
             // Realizando os binds para segurança
             $this->bind("data_envio", date("Y-m-d H:i:s"));
             $this->bind("titulo", $objNotificacao->titulo);
-            $this->bind("mensagem", substr($objNotificacao->corpo, 0, 145));
+            $this->bind("mensagem", substr($objNotificacao->corpo, 0, 500));
             $this->bind("filtro", $objNotificacao->filtro);
             
             $this->bind("usuario_criacao_id", $objNotificacao->usuario_criacao_id);
@@ -163,8 +163,31 @@ class daoNotificacao extends Dao {
     function getUsuariosEnviosFiltro($arrDados, $bolTotal = false){
         // Filtra os exames de um determinado pep
         try{
-            // Caso seja o total
-            if($bolTotal){
+            if((isset($arrDados["resposta_paciente"]) && $arrDados["resposta_paciente"] == 1)
+                || 
+                (isset($arrDados["notificacao_criacao_id"]) && $arrDados["notificacao_criacao_id"] <> null)){
+                
+                // Caso seja uma mensagem da equipe médica para um paciente
+                if($arrDados["envio_paciente"] == 0){
+                    $intIdUsuario = $arrDados["notificacao_criacao_id"];
+                    $this->sql ="SELECT
+                                  u.id,
+                                  u.codigo_onesignal
+                                FROM usuario u
+                                inner join notificacao n on n.id = {$intIdUsuario} and u.id = n.usuario_criacao_id
+                                WHERE
+                                     1 = 1";
+                    
+                }else{// caso seja do paciente para equipe médica 
+                    $this->sql ="SELECT
+                              id,
+                              codigo_onesignal
+                            FROM usuario
+                            WHERE
+                                 perfil_id = 2  ";
+                }
+                    
+            }else if($bolTotal){ // Caso seja o total
                 $this->sql ="SELECT
                               count(id) total
                             FROM usuario

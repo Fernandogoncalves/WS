@@ -87,7 +87,7 @@ class Notificacao {
         $arrDadosNotificacao = array(
             'include_player_ids' => $arrIds,
             "headings" => array("en" => $objNotificacao->titulo),
-            'contents' => array("en" => $objNotificacao->corpo)
+            'contents' => array("en" => substr($objNotificacao->corpo, 0, 250))
         );
         if(isset($objNotificacao->notificacao_criacao_id) && !empty($objNotificacao->notificacao_criacao_id)){
             $arrDadosNotificacao['data'] = array(
@@ -99,6 +99,11 @@ class Notificacao {
                                                      : Constantes::$ULR_THREAD_NOTIFICAAO_PACIENTE,
                                             "parametros"=>array("notificacaoId"=>$objNotificacao->notificacao_criacao_id)
                                         );
+        }else{
+            $arrDadosNotificacao['data'] = array(
+                "foo"=>"bar",
+                "acao"=> Constantes::$ULR_THREAD_MINHAS_NOTIFICACOES
+            );
         }
         
         if(isset($objNotificacao->envio_paciente) && $objNotificacao->envio_paciente == 1 &&
@@ -129,9 +134,10 @@ class Notificacao {
      */
     function validarCadastro(stdClass $objNotificacao){
         // Valida��o dos dados de exame
+        if(!empty($objNotificacao->pep) && strlen($objNotificacao->pep) != 7)        throw new Exception("Número de pep Inválido!");
         if(empty($objNotificacao->titulo))      throw new Exception("Título da notificação não informado!");
         if(empty($objNotificacao->corpo))       throw new Exception("Corpo da notificação não informado!"); 
-        if(strlen($objNotificacao->corpo) > 150)throw new Exception("Corpo da notificação maior que 145 caracteres!");
+        if(strlen($objNotificacao->corpo) > 500)throw new Exception("Corpo da notificação maior que 250 caracteres!");
     } 
     
     /**

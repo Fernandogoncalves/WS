@@ -20,5 +20,7 @@ class Constantes {
     static $ULR_THREAD_NOTIFICAAO_PACIENTE          = "app.thread-notificacao";
     static $ULR_THREAD_NOTIFICAAO_EQUIPE_MEDICA     = "app.thread-notificacao-equipe";
     static $ULR_LISTA_NOTIFICAAO_EQUIPE_MEDICA      = "#/app/thread-notificacao-equipe/";
+    static $ULR_THREAD_MINHAS_NOTIFICACOES          = "app.minhas-notificacoes";
+    
     
 }

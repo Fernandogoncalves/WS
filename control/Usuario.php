@@ -387,8 +387,10 @@ class Usuario {
         
         if($bolEdit){// caso seja edição
             if(empty($objPaciente->numero_pep))        throw new Exception("Nº PEP Não Informado!");
+            if(!empty($objNotificacao->numero_pep) && strlen($objNotificacao->numero_pep) != 7)        throw new Exception("Número de pep Inválido!");
         }else{
             if(empty($objPaciente->pep))        throw new Exception("Nº PEP Não Informado!");
+            if(!empty($objNotificacao->pep) && strlen($objNotificacao->pep) != 7)        throw new Exception("Número de pep Inválido!");
             if($this->objDaoUsuario->existePep(array("strPep"=>$objPaciente->pep))) throw new Exception("Pep já cadastrado!");
         }
         if(!Utilidades::validarData($objPaciente->data_nascimento))    throw new Exception("Data Nascimento Inválida!");
@@ -409,7 +411,7 @@ class Usuario {
         if(empty($objUsuario->cpf)) throw new Exception("CPF Não Informado!");
         if(empty($objUsuario->email)) throw new Exception("E-mail Não Informado!");
         if(!Utilidades::validaCPF($objUsuario->cpf)) throw new Exception("CPF invalido!");
-        if(preg_match("/[^A-Za-z\s]/", $objUsuario->nome)) throw new Exception("Nome inválido!");
+        if(preg_match("/[^A-Za-záéíóúâãõê\s]/", $objUsuario->nome)) throw new Exception("Nome inválido!");
         if(!Utilidades::validarEmail($objUsuario->email)) throw new Exception("E-mail invalido!");
         if(empty($objUsuario->nome)) throw new Exception("Nome Não Informado!");
         
